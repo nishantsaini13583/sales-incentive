@@ -168,6 +168,10 @@ button, input, select { font-family: inherit; }
 .brand h1 { font-family: var(--display); font-size: 28px; font-weight: 700; letter-spacing: -.03em; }
 .brand p { color: var(--muted); margin-top: 6px; font-size: 14.5px; }
 
+
+.auth-links { display: flex; justify-content: center; margin-top: 14px; min-height: 20px; }
+.auth-links .link { padding: 4px 8px; }
+
 /* ---------- app shell ---------- */
 .topbar {
   position: sticky; top: 0; z-index: 15; display: flex; justify-content: space-between; align-items: center;
@@ -361,7 +365,7 @@ button, input, select { font-family: inherit; }
 <div class="success" id="success">
   <div class="ok-box">
     <svg viewBox="0 0 52 52"><circle class="ok-c" cx="26" cy="26" r="24"/><path class="ok-p" d="M15 27l8 8 15-17"/></svg>
-    <p>Entry save ho gayi</p>
+    <p>Entry saved</p>
   </div>
 </div>
 
@@ -371,7 +375,7 @@ button, input, select { font-family: inherit; }
     <div class="brand">
       <div class="logo"><span data-icon="wallet" data-size="30"></span></div>
       <h1>Sales Incentive</h1>
-      <p>Phone bechो, entry karo, incentive pao.</p>
+      <p>Log your sales and track your incentives.</p>
     </div>
 
     <div class="card">
@@ -381,24 +385,30 @@ button, input, select { font-family: inherit; }
         <button type="button" data-mode="register">Create account</button>
       </div>
 
+      <p class="note hidden" id="authNote" style="margin-top:14px"></p>
+
       <form id="authForm" novalidate>
         <div class="collapse" id="nameCol"><div>
-          <div class="field"><input id="fullName" placeholder=" " autocomplete="name"><label for="fullName">Aapka pura naam</label></div>
+          <div class="field"><input id="fullName" placeholder=" " autocomplete="name"><label for="fullName">Full name</label></div>
         </div></div>
 
-        <div class="field"><input id="email" type="email" placeholder=" " autocomplete="username" inputmode="email"><label for="email">Email</label></div>
+        <div class="field" id="emailField"><input id="email" type="email" placeholder=" " autocomplete="username" inputmode="email"><label for="email">Email</label></div>
 
-        <div class="field has-eye">
-          <input id="password" type="password" placeholder=" " autocomplete="current-password"><label for="password">Password</label>
-          <button type="button" class="eye" id="eyeBtn" aria-label="Password dikhao"><span data-icon="eye"></span></button>
+        <div class="field has-eye" id="pwField">
+          <input id="password" type="password" placeholder=" " autocomplete="current-password"><label for="password" id="lblPassword">Password</label>
+          <button type="button" class="eye" id="eyeBtn" aria-label="Show password"><span data-icon="eye"></span></button>
         </div>
 
         <div class="collapse" id="confCol"><div>
-          <div class="field"><input id="password2" type="password" placeholder=" " autocomplete="new-password"><label for="password2">Password dobara likho</label></div>
+          <div class="field"><input id="password2" type="password" placeholder=" " autocomplete="new-password"><label for="password2">Confirm password</label></div>
         </div></div>
 
         <p class="msg" id="authMsg"></p>
         <button class="btn" id="authBtn" type="submit" style="margin-top:14px">Log in</button>
+        <div class="auth-links">
+          <button type="button" class="link" id="forgotBtn">Forgot password?</button>
+          <button type="button" class="link hidden" id="backBtn">Back to log in</button>
+        </div>
       </form>
     </div>
   </div>
@@ -424,12 +434,12 @@ button, input, select { font-family: inherit; }
 
       <div id="qrBanner" class="banner hidden" data-go="qr" role="button" tabindex="0">
         <span data-icon="qr" data-size="22"></span>
-        <div><b>Payment QR abhi baaki hai</b><small>Incentive payment ke liye apna QR save karo</small></div>
+        <div><b>Payment QR pending</b><small>Save your QR code to receive incentive payments</small></div>
         <span data-icon="chev"></span>
       </div>
 
       <div class="stats">
-        <div class="stat"><div class="k">Meri entries</div><div class="v" id="stEntries">0</div></div>
+        <div class="stat"><div class="k">My entries</div><div class="v" id="stEntries">0</div></div>
         <div class="stat money"><div class="k">Total discount</div><div class="v" id="stDisc">₹0</div></div>
         <div class="stat"><div class="k">Approved</div><div class="v" id="stAppr">0</div></div>
         <div class="stat"><div class="k">Paid</div><div class="v" id="stPaid">0</div></div>
@@ -437,18 +447,18 @@ button, input, select { font-family: inherit; }
 
       <button class="btn" data-go="new" style="margin-top:16px"><span data-icon="plus"></span>New entry</button>
 
-      <div class="sec-h"><h3>Recent entries</h3><button class="link" data-go="list">Sab dekho</button></div>
+      <div class="sec-h"><h3>Recent entries</h3><button class="link" data-go="list">View all</button></div>
       <div id="recent"></div>
     </section>
 
     <section class="view" id="v-new">
       <div class="sec-h" style="margin-top:6px"><h3>New sales entry</h3></div>
       <form class="card" id="entryForm" novalidate>
-        <p class="note">Entry <b id="asName"></b> ke naam se save hogi.</p>
+        <p class="note">This entry will be recorded under <b id="asName"></b>.</p>
 
         <div class="field"><input id="model" placeholder=" " autocomplete="off"><label for="model">Phone model</label></div>
         <div class="field"><input id="imei" placeholder=" " inputmode="numeric" autocomplete="off" maxlength="40"><label for="imei">IMEI number</label><span class="hint" id="imeiHint">0/15</span></div>
-        <div class="field"><input id="discount" placeholder=" " inputmode="decimal" autocomplete="off"><label for="discount">Discount (₹) ya No</label></div>
+        <div class="field"><input id="discount" placeholder=" " inputmode="decimal" autocomplete="off"><label for="discount">Discount (₹) or "No"</label></div>
         <div class="field always"><input id="saleDate" type="date"><label for="saleDate">Date</label></div>
 
         <p class="lbl">Status</p>
@@ -464,7 +474,7 @@ button, input, select { font-family: inherit; }
 
     <section class="view" id="v-list">
       <div class="sec-h" style="margin-top:6px">
-        <h3>Meri entries</h3>
+        <h3>My entries</h3>
         <button class="icon-btn sm" id="refreshBtn" aria-label="Refresh"><span data-icon="refresh" data-size="16"></span></button>
       </div>
       <div class="chips" id="listFilters"></div>
@@ -474,19 +484,19 @@ button, input, select { font-family: inherit; }
     <section class="view" id="v-qr">
       <div class="sec-h" style="margin-top:6px"><h3>Payment QR</h3><span class="chip c-warn" id="qrStatus"></span></div>
       <div class="card">
-        <p class="note">Apna UPI QR (screenshot) yahan save karo. Admin isi QR par payment karega.</p>
+        <p class="note">Upload your UPI QR code (a screenshot works). Incentive payments will be made to this QR.</p>
 
         <div class="qr-show">
-          <img id="qrImg" class="hidden" alt="Mera payment QR">
-          <div id="qrEmpty" class="qr-empty"><span data-icon="qr" data-size="34"></span><span>QR abhi save nahi hai</span></div>
+          <img id="qrImg" class="hidden" alt="My payment QR">
+          <div id="qrEmpty" class="qr-empty"><span data-icon="qr" data-size="34"></span><span>No QR code saved yet</span></div>
         </div>
 
         <label class="drop" id="drop" for="qrFile">
           <input type="file" id="qrFile" accept="image/png,image/jpeg,image/webp" hidden>
           <div class="drop-in">
             <span data-icon="upload" data-size="22"></span>
-            <b id="dropT">Image chuno ya yahan chhodo</b>
-            <small>PNG, JPG ya WEBP</small>
+            <b id="dropT">Choose an image or drop it here</b>
+            <small>PNG, JPG or WEBP</small>
           </div>
           <img id="dropPrev" class="hidden" alt="">
         </label>
@@ -514,8 +524,8 @@ var SUPABASE_URL = "https://wgdwpvwnhukxubbqgxnf.supabase.co";
 var SUPABASE_KEY = "sb_publishable_vXtjLftYqBWW7vbSqQd5SQ_CKuRPY3n";
 var db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
   auth: {
-    persistSession: true,       // login browser mein save rahega
-    autoRefreshToken: true,     // session apne aap renew hota rahega
+    persistSession: true,       // session is saved in the browser
+    autoRefreshToken: true,     // session renews automatically
     storageKey: "sip-staff-auth"
   }
 });
@@ -524,6 +534,10 @@ var sales = [];
 var me = null;          // logged in user
 var profile = null;     // profiles row
 var mode = "login";
+// Set when the user arrives from a password-reset email link
+var recoveryMode = /type=recovery/.test(location.hash) || /type=recovery/.test(location.search);
+var linkExpired = /error_description=|error_code=/.test(location.hash);
+function pageUrl() { return location.href.split("#")[0].split("?")[0]; }
 var loaded = false;
 var lastLoad = 0;
 var fApproval = "All";
@@ -611,7 +625,7 @@ function animateNumber(el, to, fmt) {
 
 function rupee(n) { return "₹" + Math.round(n).toLocaleString("en-IN"); }
 
-// Hindi/Arabic digits ko English digits mein badalta hai
+// Converts Hindi/Arabic digits to English digits
 function normDigits(s) {
   return String(s)
     .replace(/[\u0966-\u096F]/g, function (c) { return String(c.charCodeAt(0) - 0x0966); })
@@ -649,16 +663,39 @@ function fail(id, msg) {
 
 function setMode(m) {
   mode = m;
+  var tabbed = m === "login" || m === "register";
   var seg = $("authSeg");
-  seg.style.setProperty("--i", m === "login" ? 0 : 1);
-  seg.querySelectorAll("button").forEach(function (b) {
-    b.classList.toggle("on", b.getAttribute("data-mode") === m);
-  });
+  seg.classList.toggle("hidden", !tabbed);
+  if (tabbed) {
+    seg.style.setProperty("--i", m === "login" ? 0 : 1);
+    seg.querySelectorAll("button").forEach(function (b) {
+      b.classList.toggle("on", b.getAttribute("data-mode") === m);
+    });
+  }
   $("nameCol").classList.toggle("open", m === "register");
-  $("confCol").classList.toggle("open", m === "register");
-  $("authBtn").textContent = m === "login" ? "Log in" : "Create account";
+  $("confCol").classList.toggle("open", m === "register" || m === "reset");
+  $("emailField").classList.toggle("hidden", m === "reset");
+  $("pwField").classList.toggle("hidden", m === "forgot");
+  $("forgotBtn").classList.toggle("hidden", m !== "login");
+  $("backBtn").classList.toggle("hidden", m !== "forgot");
+  if (m === "login" || m === "forgot") $("password2").value = "";
+
+  var notes = {
+    forgot: "Enter the email linked to your account and we will send you a link to reset your password.",
+    reset: "Choose a new password for your account."
+  };
+  $("authNote").textContent = notes[m] || "";
+  $("authNote").classList.toggle("hidden", !notes[m]);
+  $("lblPassword").textContent = m === "reset" ? "New password" : "Password";
+  $("authBtn").textContent = { login: "Log in", register: "Create account", forgot: "Send reset link", reset: "Update password" }[m];
   $("password").setAttribute("autocomplete", m === "login" ? "current-password" : "new-password");
   setAuthMsg("");
+}
+
+function showReset() {
+  $("appView").classList.add("hidden");
+  $("authView").classList.remove("hidden");
+  setMode("reset");
 }
 
 function setAuthMsg(text, cls) {
@@ -672,16 +709,46 @@ async function submitAuth() {
   var password = $("password").value;
   var btn = $("authBtn");
 
-  if (!email) { fail("email", "Email likho."); return; }
-  if (!password) { fail("password", "Password likho."); return; }
+  if (mode === "forgot") {
+    if (!email) { fail("email", "Please enter your email."); return; }
+    setLoading(btn, true, "Sending link");
+    setAuthMsg("");
+    var fr = await db.auth.resetPasswordForEmail(email, { redirectTo: pageUrl() });
+    setLoading(btn, false);
+    if (fr.error) { setAuthMsg("Could not send reset link: " + fr.error.message, "err"); return; }
+    setAuthMsg("If an account exists for this email, a password reset link has been sent. Please check your inbox (and spam folder).", "ok");
+    return;
+  }
+
+  if (mode === "reset") {
+    if (!password) { fail("password", "Please enter a new password."); return; }
+    if (password.length < 6) { fail("password", "Password must be at least 6 characters."); return; }
+    if (password !== $("password2").value) { fail("password2", "Passwords do not match."); return; }
+    setLoading(btn, true, "Updating password");
+    setAuthMsg("");
+    var up = await db.auth.updateUser({ password: password });
+    setLoading(btn, false);
+    if (up.error) { setAuthMsg("Could not update password: " + up.error.message, "err"); return; }
+    recoveryMode = false;
+    try { history.replaceState(null, "", pageUrl()); } catch (e) {}
+    $("password").value = "";
+    $("password2").value = "";
+    setMode("login");
+    toast("Password updated successfully", "ok");
+    await startApp(up.data.user);
+    return;
+  }
+
+  if (!email) { fail("email", "Please enter your email."); return; }
+  if (!password) { fail("password", "Please enter your password."); return; }
 
   if (mode === "register") {
     var fullName = $("fullName").value.trim();
-    if (!fullName) { fail("fullName", "Apna naam likho."); return; }
-    if (password.length < 6) { fail("password", "Password kam se kam 6 akshar ka rakho."); return; }
-    if (password !== $("password2").value) { fail("password2", "Dono password same nahi hain."); return; }
+    if (!fullName) { fail("fullName", "Please enter your full name."); return; }
+    if (password.length < 6) { fail("password", "Password must be at least 6 characters."); return; }
+    if (password !== $("password2").value) { fail("password2", "Passwords do not match."); return; }
 
-    setLoading(btn, true, "Account ban raha hai");
+    setLoading(btn, true, "Creating account");
     setAuthMsg("");
 
     var r = await db.auth.signUp({
@@ -692,11 +759,11 @@ async function submitAuth() {
 
     setLoading(btn, false);
 
-    if (r.error) { setAuthMsg("Account nahi bana: " + r.error.message, "err"); return; }
+    if (r.error) { setAuthMsg("Could not create account: " + r.error.message, "err"); return; }
 
     if (!r.data.session) {
       setMode("login");
-      setAuthMsg("Account ban gaya. Email par aaya link kholkar confirm karo, phir log in karo.", "ok");
+      setAuthMsg("Account created. Please confirm your email using the link we sent, then log in.", "ok");
       return;
     }
 
@@ -704,14 +771,14 @@ async function submitAuth() {
     return;
   }
 
-  setLoading(btn, true, "Log in ho raha hai");
+  setLoading(btn, true, "Signing in");
   setAuthMsg("");
 
   var res = await db.auth.signInWithPassword({ email: email, password: password });
 
   setLoading(btn, false);
 
-  if (res.error) { setAuthMsg("Log in nahi hua: " + res.error.message, "err"); return; }
+  if (res.error) { setAuthMsg("Sign-in failed: " + res.error.message, "err"); return; }
 
   $("password").value = "";
   await startApp(res.data.user);
@@ -735,19 +802,19 @@ async function startApp(user) {
 
   if (p.error) {
     $("authView").classList.remove("hidden");
-    setAuthMsg("Profile load nahi hua: " + p.error.message, "err");
+    setAuthMsg("Unable to load profile: " + p.error.message, "err");
     return;
   }
 
   profile = p.data;
 
-  // Agar kisi wajah se profile nahi bana to ab bana do
+  // If the profile was not created earlier, create it now
   if (!profile) {
     var meta = (me.user_metadata && me.user_metadata.full_name) || (me.email || "").split("@")[0];
     var ins = await db.from("profiles").insert({ id: me.id, email: me.email, full_name: meta }).select().single();
     if (ins.error) {
       $("authView").classList.remove("hidden");
-      setAuthMsg("Profile nahi ban paya: " + ins.error.message, "err");
+      setAuthMsg("Could not create profile: " + ins.error.message, "err");
       return;
     }
     profile = ins.data;
@@ -800,9 +867,9 @@ async function loadEntries(animate, silent) {
   lastLoad = Date.now();
 
   if (r.error) {
-    toast("Entries load nahi hui: " + r.error.message, "err");
+    toast("Unable to load entries: " + r.error.message, "err");
     if (!sales.length) {
-      $("list").innerHTML = '<div class="empty"><b>Entries load nahi hui</b><p>' + escapeHTML(r.error.message) + '</p></div>';
+      $("list").innerHTML = '<div class="empty"><b>Unable to load entries</b><p>' + escapeHTML(r.error.message) + '</p></div>';
     }
     return;
   }
@@ -842,8 +909,8 @@ function slip(it, i, animate) {
 
 function emptyState(withBtn) {
   return '<div class="empty">' + icon("phone", 40) +
-    '<b>Abhi koi entry nahi</b><p>Pehli sale ki entry karo, yahan dikhegi.</p>' +
-    (withBtn ? '<button class="btn" data-go="new">Entry karo</button>' : '') + '</div>';
+    '<b>No entries yet</b><p>Add your first sale and it will appear here.</p>' +
+    (withBtn ? '<button class="btn" data-go="new">Add entry</button>' : '') + '</div>';
 }
 
 function skeletons() {
@@ -877,7 +944,7 @@ function renderAll(animate) {
   var list = sales.filter(function (x) { return fApproval === "All" || x.approval === fApproval; });
   $("list").innerHTML = !loaded ? skeletons()
     : !sales.length ? emptyState(true)
-    : !list.length ? '<div class="empty"><b>Is filter mein koi entry nahi</b><p>Doosra filter chuno.</p></div>'
+    : !list.length ? '<div class="empty"><b>No entries match this filter</b><p>Try selecting a different filter.</p></div>'
     : list.map(function (x, i) { return slip(x, i, animate); }).join("");
 }
 
@@ -889,23 +956,23 @@ async function addEntry() {
   var disc = normDigits($("discount").value).trim();
   var d = $("saleDate").value;
 
-  if (!model) { fail("model", "Phone model likho."); return; }
-  if (!/^\d{15}$/.test(imei)) { fail("imei", "IMEI poore 15 digit ka hona chahiye."); return; }
+  if (!model) { fail("model", "Please enter the phone model."); return; }
+  if (!/^\d{15}$/.test(imei)) { fail("imei", "IMEI must be exactly 15 digits."); return; }
 
   var discount;
   if (/^no$/i.test(disc)) {
     discount = "No";
   } else {
     var n = Number(disc.replace(/,/g, ""));
-    if (disc === "" || !isFinite(n) || n < 0) { fail("discount", "Discount mein amount likho ya No."); return; }
+    if (disc === "" || !isFinite(n) || n < 0) { fail("discount", "Enter a discount amount, or 'No'."); return; }
     discount = String(n);
   }
 
-  if (!d) { fail("saleDate", "Date chuno."); return; }
-  if (d > todayStr()) { fail("saleDate", "Aage ki date nahi chalegi."); return; }
+  if (!d) { fail("saleDate", "Please select a date."); return; }
+  if (d > todayStr()) { fail("saleDate", "Future dates are not allowed."); return; }
 
   var btn = $("submitBtn");
-  setLoading(btn, true, "Save ho rahi hai");
+  setLoading(btn, true, "Saving");
 
   var r = await db.from("sales").insert({
     user_id: me.id,
@@ -923,9 +990,9 @@ async function addEntry() {
 
   if (r.error) {
     if (r.error.code === "23505") {
-      fail("imei", "Ye IMEI pehle se entry ho chuka hai.");
+      fail("imei", "This IMEI has already been entered.");
     } else {
-      toast("Entry save nahi hui: " + r.error.message, "err");
+      toast("Could not save entry: " + r.error.message, "err");
     }
     return;
   }
@@ -958,13 +1025,13 @@ function renderQR() {
   $("qrBanner").classList.toggle("hidden", has);
   var st = $("qrStatus");
   st.className = "chip " + (has ? "c-ok" : "c-warn");
-  st.innerHTML = icon(has ? "check" : "clock", 13) + (has ? "Saved" : "Baaki hai");
+  st.innerHTML = icon(has ? "check" : "clock", 13) + (has ? "Saved" : "Pending");
 }
 
 function resetDrop() {
   $("dropPrev").classList.add("hidden");
   $("dropPrev").removeAttribute("src");
-  $("dropT").textContent = "Image chuno ya yahan chhodo";
+  $("dropT").textContent = "Choose an image or drop it here";
   $("qrBtn").disabled = true;
 }
 
@@ -973,14 +1040,14 @@ function onQrPicked() {
   if (!f) { resetDrop(); return; }
 
   if (["image/png", "image/jpeg", "image/webp"].indexOf(f.type) === -1) {
-    toast("Sirf PNG, JPG ya WEBP image chalegi.", "err");
+    toast("Only PNG, JPG or WEBP images are supported.", "err");
     $("qrFile").value = "";
     resetDrop();
     return;
   }
 
   if (f.size > 8 * 1024 * 1024) {
-    toast("Image 8 MB se chhoti honi chahiye.", "err");
+    toast("Image must be smaller than 8 MB.", "err");
     $("qrFile").value = "";
     resetDrop();
     return;
@@ -993,14 +1060,14 @@ function onQrPicked() {
   $("qrMsg").textContent = "";
 }
 
-// Image ko chhota karke base64 (data URL) bana deta hai
+// Resizes the image and converts it to a base64 data URL
 function prepareImage(file) {
   return new Promise(function (resolve, reject) {
     var reader = new FileReader();
-    reader.onerror = function () { reject(new Error("File padh nahi paye.")); };
+    reader.onerror = function () { reject(new Error("Unable to read the file.")); };
     reader.onload = function () {
       var im = new Image();
-      im.onerror = function () { reject(new Error("Ye image khul nahi rahi.")); };
+      im.onerror = function () { reject(new Error("Unable to open this image.")); };
       im.onload = function () {
         var max = 700;
         var scale = Math.min(1, max / Math.max(im.width, im.height));
@@ -1017,7 +1084,7 @@ function prepareImage(file) {
         var out = c.toDataURL("image/png");
         if (out.length > 380000) out = c.toDataURL("image/jpeg", 0.8);
         if (out.length > 380000) out = c.toDataURL("image/jpeg", 0.6);
-        if (out.length > 380000) { reject(new Error("Image bahut badi hai, koi chhota screenshot lo.")); return; }
+        if (out.length > 380000) { reject(new Error("Image is too large. Please use a smaller screenshot.")); return; }
         resolve(out);
       };
       im.src = reader.result;
@@ -1028,10 +1095,10 @@ function prepareImage(file) {
 
 async function uploadQR() {
   var file = $("qrFile").files[0];
-  if (!file) { toast("Pehle QR ki image chuno.", "err"); return; }
+  if (!file) { toast("Please select a QR image first.", "err"); return; }
 
   var btn = $("qrBtn");
-  setLoading(btn, true, "Save ho raha hai");
+  setLoading(btn, true, "Saving");
   $("qrMsg").textContent = "";
 
   var data;
@@ -1043,13 +1110,13 @@ async function uploadQR() {
     return;
   }
 
-  // qr_path sirf ek flag hai ki QR saved hai (admin list ko halki rakhne ke liye)
+  // qr_path is only a flag indicating a QR is saved (keeps the admin list lightweight)
   var upd = await db.from("profiles").update({ qr_data: data, qr_path: "base64" }).eq("id", me.id).select().single();
 
   setLoading(btn, false);
 
   if (upd.error) {
-    toast("QR save nahi hua: " + upd.error.message, "err");
+    toast("Could not save QR: " + upd.error.message, "err");
     return;
   }
 
@@ -1057,7 +1124,7 @@ async function uploadQR() {
   $("qrFile").value = "";
   resetDrop();
   renderQR();
-  toast("QR save ho gaya", "ok");
+  toast("QR saved", "ok");
 }
 
 /* ---------- EVENTS ---------- */
@@ -1076,6 +1143,8 @@ function bindEvents() {
     this.innerHTML = icon(show ? "eyeoff" : "eye");
   });
   $("logoutBtn").addEventListener("click", logout);
+  $("forgotBtn").addEventListener("click", function () { setMode("forgot"); });
+  $("backBtn").addEventListener("click", function () { setMode("login"); });
 
   // navigation
   $("dock").addEventListener("click", function (e) {
@@ -1136,7 +1205,7 @@ function bindEvents() {
     }
   });
 
-  // tab wapas khulne par entries chup-chaap refresh
+  // Silent refresh when the tab becomes visible again
   document.addEventListener("visibilitychange", function () {
     if (!document.hidden && me && Date.now() - lastLoad > 20000) loadEntries(false, true);
   });
@@ -1148,7 +1217,19 @@ fillIcons();
 bindEvents();
 setMode("login");
 
+db.auth.onAuthStateChange(function (ev) {
+  if (ev === "PASSWORD_RECOVERY") { recoveryMode = true; showReset(); }
+});
+
 db.auth.getSession().then(function (r) {
+  if (recoveryMode) { showReset(); return; }
+  if (linkExpired) {
+    $("authView").classList.remove("hidden");
+    setMode("forgot");
+    setAuthMsg("This reset link is invalid or has expired. Please request a new one.", "err");
+    try { history.replaceState(null, "", pageUrl()); } catch (e) {}
+    return;
+  }
   if (r.data && r.data.session) {
     return startApp(r.data.session.user);
   }
