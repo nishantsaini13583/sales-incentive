@@ -2,131 +2,510 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#09150f">
 <title>Sales Incentive Portal - Staff</title>
 
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;600;700&family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
+
 <style>
-* { box-sizing: border-box; font-family: Arial, sans-serif; }
-body { margin: 0; background: #0b0f0e; color: white; }
-header { background: #111917; padding: 20px; border-bottom: 1px solid #263b32; display: flex; justify-content: space-between; align-items: center; gap: 10px; }
-header h1 { color: #20d98b; margin: 0; font-size: 23px; }
-header p { color: #a5b4ad; font-size: 13px; margin: 6px 0 0; }
-.container { max-width: 650px; margin: auto; padding: 18px; }
-.card { background: #151d19; border: 1px solid #263b32; border-radius: 15px; padding: 18px; margin-bottom: 15px; }
-.card h2 { margin-top: 0; font-size: 18px; }
-input, select, button {
-  width: 100%; padding: 13px; margin-top: 10px; border-radius: 9px;
-  border: 1px solid #34473d; background: #0d1410; color: white; font-size: 15px;
+:root {
+  --bg: #09150f;
+  --surface: #0f2018;
+  --surface2: #142a20;
+  --line: rgba(180, 230, 205, .08);
+  --line2: rgba(180, 230, 205, .17);
+  --text: #e8f2ec;
+  --muted: #86a496;
+  --dim: #5c7a6a;
+  --accent: #52e6a6;
+  --accent2: #2fc488;
+  --ink: #04140c;
+  --gold: #f2c35b;
+  --warn: #f2c35b;
+  --danger: #ff7a7a;
+  --ease: cubic-bezier(.22, 1, .36, 1);
+  --display: "Bricolage Grotesque", "Figtree", system-ui, sans-serif;
+  --body: "Figtree", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
 }
-input[type=file] { padding: 10px; }
-button { background: #16a765; border: none; font-weight: bold; cursor: pointer; }
-button:hover { background: #118651; }
-button:disabled { opacity: 0.6; cursor: not-allowed; }
-.logout { width: auto; margin: 0; padding: 8px 16px; background: #3a4a42; }
-.stat { color: #20d98b; font-size: 25px; font-weight: bold; }
-.small { color: #9caea4; font-size: 12px; }
-.msg { font-size: 13px; margin: 10px 0 0; min-height: 16px; }
-.err { color: #ff6b6b; }
-.ok { color: #20d98b; }
-.warn { background: #3b3010; border: 1px solid #7a6320; color: #f5c542; padding: 10px 12px; border-radius: 9px; font-size: 13px; margin-top: 10px; }
-.entry { border-bottom: 1px solid #29372f; padding: 12px 0; word-break: break-word; }
-.tag { font-size: 12px; font-weight: bold; }
-.Pending { color: #f5c542; }
-.Approved { color: #20d98b; }
-.Rejected { color: #ff6b6b; }
-.Paid { color: #20d98b; }
-.Unpaid { color: #9caea4; }
-.tabs { display: flex; gap: 8px; }
-.tabs button { margin-top: 0; background: #0d1410; border: 1px solid #34473d; }
-.tabs button.active { background: #16a765; border-color: #16a765; }
-#qrPreview { max-width: 220px; width: 100%; border-radius: 10px; border: 1px solid #34473d; background: white; margin-top: 10px; display: block; }
+
+* { box-sizing: border-box; margin: 0; -webkit-tap-highlight-color: transparent; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--body);
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+button, input, select { font-family: inherit; }
+::selection { background: rgba(82, 230, 166, .3); }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.bg {
+  position: fixed; inset: 0; z-index: -1; pointer-events: none;
+  background:
+    radial-gradient(70% 45% at 10% -5%, rgba(82, 230, 166, .10), transparent 60%),
+    radial-gradient(60% 40% at 100% 105%, rgba(242, 195, 91, .05), transparent 60%);
+}
+
 .hidden { display: none !important; }
-#authBox { max-width: 420px; }
-footer { text-align: center; padding: 20px; color: #66756d; font-size: 12px; }
+
+/* ---------- buttons ---------- */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  width: 100%; padding: 15px 18px; border: 0; border-radius: 14px;
+  font-size: 15px; font-weight: 700; color: var(--ink);
+  background: linear-gradient(180deg, var(--accent), var(--accent2));
+  box-shadow: 0 10px 26px -12px rgba(82, 230, 166, .7), inset 0 1px 0 rgba(255,255,255,.35);
+  cursor: pointer;
+  transition: transform .2s var(--ease), filter .2s, box-shadow .25s;
+}
+.btn:hover { filter: brightness(1.06); transform: translateY(-1px); }
+.btn:active { transform: scale(.97); }
+.btn:disabled { opacity: .5; cursor: not-allowed; transform: none; filter: none; }
+.spin {
+  width: 16px; height: 16px; border-radius: 50%;
+  border: 2px solid currentColor; border-right-color: transparent;
+  animation: spin .7s linear infinite;
+}
+.icon-btn {
+  width: 42px; height: 42px; display: grid; place-items: center; padding: 0; flex: none;
+  border-radius: 13px; border: 1px solid var(--line2); background: rgba(255,255,255,.04);
+  color: var(--text); cursor: pointer; transition: background .2s, transform .2s var(--ease);
+}
+.icon-btn:hover { background: rgba(255,255,255,.09); }
+.icon-btn:active { transform: scale(.92); }
+.icon-btn.sm { width: 36px; height: 36px; border-radius: 11px; }
+.icon-btn.spinning svg { animation: spin .8s linear infinite; }
+.link { border: 0; background: none; color: var(--accent); font-size: 13px; font-weight: 600; cursor: pointer; }
+[data-icon] { display: inline-flex; }
+
+/* ---------- fields ---------- */
+.field { position: relative; margin-top: 14px; }
+.field input {
+  width: 100%; height: 58px; padding: 24px 16px 6px;
+  border-radius: 14px; border: 1px solid var(--line2);
+  background: rgba(255,255,255,.035); color: var(--text);
+  font-size: 16px; font-weight: 500; outline: none; color-scheme: dark;
+  transition: border-color .2s, box-shadow .2s, background .2s;
+}
+.field input:focus {
+  border-color: var(--accent); background: rgba(82,230,166,.05);
+  box-shadow: 0 0 0 4px rgba(82,230,166,.12);
+}
+.field label {
+  position: absolute; left: 16px; top: 19px; color: var(--muted); font-size: 15px;
+  pointer-events: none; transition: all .2s var(--ease);
+}
+.field input:focus + label,
+.field input:not(:placeholder-shown) + label,
+.field.always label { top: 9px; font-size: 11.5px; color: var(--accent); }
+.field .hint { position: absolute; right: 14px; top: 20px; font-size: 12px; color: var(--dim); font-variant-numeric: tabular-nums; }
+.field .hint.ok { color: var(--accent); }
+.field .eye {
+  position: absolute; right: 8px; top: 9px; width: 40px; height: 40px;
+  display: grid; place-items: center; border: 0; background: transparent;
+  color: var(--muted); border-radius: 10px; cursor: pointer;
+}
+.field.has-eye input { padding-right: 54px; }
+.shake { animation: shake .4s; }
+
+.collapse { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .4s var(--ease), opacity .3s; opacity: 0; }
+.collapse.open { grid-template-rows: 1fr; opacity: 1; }
+.collapse > div { overflow: hidden; padding: 0 4px; margin: 0 -4px; }
+
+.seg {
+  position: relative; display: grid; grid-template-columns: repeat(var(--n, 2), 1fr);
+  padding: 4px; background: rgba(255,255,255,.04); border-radius: 14px; border: 1px solid var(--line);
+}
+.seg button {
+  position: relative; z-index: 1; padding: 11px; border: 0; background: transparent;
+  color: var(--muted); font-size: 14px; font-weight: 600; cursor: pointer; transition: color .3s;
+}
+.seg button.on { color: var(--ink); }
+.seg-ind {
+  position: absolute; top: 4px; bottom: 4px; left: 4px;
+  width: calc((100% - 8px) / var(--n, 2)); border-radius: 11px;
+  background: linear-gradient(180deg, var(--accent), var(--accent2));
+  transform: translateX(calc(var(--i, 0) * 100%));
+  transition: transform .45s var(--ease);
+}
+
+/* ---------- cards ---------- */
+.card {
+  background: var(--surface); border: 1px solid var(--line);
+  border-radius: 22px; padding: 20px;
+}
+.note { color: var(--muted); font-size: 13.5px; line-height: 1.5; }
+.note b { color: var(--text); font-weight: 600; }
+.lbl { color: var(--muted); font-size: 13px; font-weight: 600; margin: 18px 0 8px; }
+.msg { min-height: 18px; font-size: 13px; margin-top: 12px; color: var(--muted); line-height: 1.4; }
+.msg.err { color: var(--danger); }
+.msg.ok { color: var(--accent); }
+
+.chip {
+  display: inline-flex; align-items: center; gap: 5px; padding: 5px 10px;
+  border-radius: 999px; font-size: 12px; font-weight: 600; white-space: nowrap;
+}
+.c-ok { background: rgba(82,230,166,.12); color: var(--accent); }
+.c-warn { background: rgba(242,195,91,.13); color: var(--warn); }
+.c-bad { background: rgba(255,122,122,.12); color: var(--danger); }
+.c-mute { background: rgba(255,255,255,.06); color: var(--muted); }
+
+/* ---------- auth ---------- */
+.auth { min-height: 100vh; display: grid; place-items: center; padding: 24px 16px; }
+.auth-wrap { width: 100%; max-width: 420px; }
+.brand { text-align: center; margin-bottom: 24px; }
+.logo {
+  width: 62px; height: 62px; margin: 0 auto 16px; border-radius: 20px; display: grid; place-items: center;
+  background: linear-gradient(180deg, var(--accent), var(--accent2)); color: var(--ink);
+  box-shadow: 0 16px 40px -14px rgba(82,230,166,.7);
+}
+.brand h1 { font-family: var(--display); font-size: 28px; font-weight: 700; letter-spacing: -.03em; }
+.brand p { color: var(--muted); margin-top: 6px; font-size: 14.5px; }
+
+/* ---------- app shell ---------- */
+.topbar {
+  position: sticky; top: 0; z-index: 15; display: flex; justify-content: space-between; align-items: center;
+  padding: 12px 16px; padding-top: calc(12px + env(safe-area-inset-top));
+  background: rgba(9,21,15,.78); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--line);
+}
+.who { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.avatar {
+  width: 40px; height: 40px; border-radius: 14px; display: grid; place-items: center; flex: none;
+  font-family: var(--display); font-weight: 700; background: var(--surface2); color: var(--accent);
+  border: 1px solid var(--line2);
+}
+.who-t { min-width: 0; }
+.who-n { font-weight: 700; font-size: 15px; }
+.who-s { color: var(--muted); font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.wrap { max-width: 560px; margin: 0 auto; padding: 18px 16px 130px; }
+.view { display: none; }
+.view.active { display: block; animation: viewIn .4s var(--ease); }
+
+.hero h2 { font-family: var(--display); font-size: 30px; font-weight: 700; letter-spacing: -.03em; line-height: 1.1; margin: 4px 2px 18px; }
+.hero p { color: var(--muted); font-size: 14px; margin: 0 2px; }
+
+.stats { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.stat { padding: 16px; border-radius: 18px; background: var(--surface); border: 1px solid var(--line); }
+.stat .k { font-size: 13px; color: var(--muted); }
+.stat .v { font-family: var(--display); font-size: 28px; font-weight: 700; letter-spacing: -.02em; margin-top: 6px; font-variant-numeric: tabular-nums; }
+.stat.money .v { color: var(--gold); }
+
+.sec-h { display: flex; align-items: center; justify-content: space-between; margin: 24px 2px 12px; }
+.sec-h h3 { font-family: var(--display); font-size: 18px; font-weight: 600; letter-spacing: -.01em; }
+
+.banner {
+  display: flex; align-items: center; gap: 12px; padding: 14px 16px; margin-bottom: 14px;
+  border-radius: 18px; background: rgba(242,195,91,.08); border: 1px solid rgba(242,195,91,.3);
+  color: var(--warn); cursor: pointer; transition: transform .25s var(--ease);
+}
+.banner:hover { transform: translateY(-1px); }
+.banner div { flex: 1; display: grid; gap: 2px; font-size: 14px; }
+.banner small { color: #cdb36a; font-size: 12.5px; }
+
+/* ---------- sales slip (entry) ---------- */
+.slip { margin-bottom: 12px; transition: transform .25s var(--ease); }
+.slip:hover { transform: translateY(-2px); }
+.slip.in { animation: rise .55s var(--ease) both; animation-delay: var(--d, 0ms); }
+.slip-top, .slip-bot {
+  background: var(--surface); border: 1px solid var(--line); padding: 16px;
+}
+.slip-top {
+  border-radius: 18px 18px 0 0; border-bottom: 0; padding-bottom: 18px;
+  display: flex; justify-content: space-between; align-items: flex-start; gap: 12px;
+  -webkit-mask: radial-gradient(circle 9px at 0 100%, #0000 97%, #000) left / 51% 100% no-repeat,
+                radial-gradient(circle 9px at 100% 100%, #0000 97%, #000) right / 51% 100% no-repeat;
+          mask: radial-gradient(circle 9px at 0 100%, #0000 97%, #000) left / 51% 100% no-repeat,
+                radial-gradient(circle 9px at 100% 100%, #0000 97%, #000) right / 51% 100% no-repeat;
+}
+.slip-bot {
+  border-radius: 0 0 18px 18px; border-top: 1.5px dashed var(--line2); padding-top: 14px;
+  -webkit-mask: radial-gradient(circle 9px at 0 0, #0000 97%, #000) left / 51% 100% no-repeat,
+                radial-gradient(circle 9px at 100% 0, #0000 97%, #000) right / 51% 100% no-repeat;
+          mask: radial-gradient(circle 9px at 0 0, #0000 97%, #000) left / 51% 100% no-repeat,
+                radial-gradient(circle 9px at 100% 0, #0000 97%, #000) right / 51% 100% no-repeat;
+  display: flex; flex-wrap: wrap; gap: 6px; align-items: center;
+}
+.s-model { font-family: var(--display); font-weight: 600; font-size: 18px; letter-spacing: -.01em; word-break: break-word; }
+.s-imei { color: var(--muted); font-size: 13px; margin-top: 4px; font-variant-numeric: tabular-nums; }
+.s-amt { font-family: var(--display); font-weight: 700; font-size: 20px; color: var(--gold); white-space: nowrap; font-variant-numeric: tabular-nums; }
+.s-amt.none { color: var(--dim); font-size: 14px; font-weight: 600; }
+.s-date { margin-left: auto; color: var(--dim); font-size: 12.5px; }
+
+.skel {
+  height: 112px; border-radius: 18px; margin-bottom: 12px;
+  background: linear-gradient(90deg, rgba(255,255,255,.03), rgba(255,255,255,.08), rgba(255,255,255,.03));
+  background-size: 200% 100%; animation: shimmer 1.3s infinite;
+}
+.empty { text-align: center; padding: 44px 20px; color: var(--muted); }
+.empty svg { color: var(--dim); margin-bottom: 12px; }
+.empty b { display: block; color: var(--text); font-size: 16px; margin-bottom: 6px; font-family: var(--display); }
+.empty p { font-size: 14px; margin-bottom: 18px; }
+.empty .btn { width: auto; padding: 12px 22px; }
+
+.chips { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; margin-bottom: 14px; scrollbar-width: none; }
+.chips::-webkit-scrollbar { display: none; }
+.fchip {
+  flex: none; padding: 8px 14px; border-radius: 999px; border: 1px solid var(--line2);
+  background: rgba(255,255,255,.03); color: var(--muted); font-size: 13px; font-weight: 600; cursor: pointer;
+  transition: background .25s var(--ease), color .25s, border-color .25s, transform .2s var(--ease);
+}
+.fchip.on { background: rgba(82,230,166,.14); border-color: rgba(82,230,166,.5); color: var(--accent); }
+.fchip:active { transform: scale(.95); }
+.fchip i { font-style: normal; opacity: .7; margin-left: 4px; font-variant-numeric: tabular-nums; }
+
+/* ---------- QR ---------- */
+.qr-show {
+  display: grid; place-items: center; min-height: 200px; margin-top: 14px; overflow: hidden;
+  border-radius: 18px; background: rgba(255,255,255,.03); border: 1px solid var(--line);
+}
+.qr-show img { width: 100%; max-width: 240px; background: #fff; border-radius: 14px; padding: 10px; margin: 14px; animation: pop .5s var(--ease); }
+.qr-empty { display: grid; gap: 8px; justify-items: center; color: var(--dim); font-size: 13.5px; padding: 30px; }
+.drop {
+  display: block; margin-top: 14px; border: 1.5px dashed var(--line2); border-radius: 18px;
+  padding: 22px 14px; text-align: center; cursor: pointer; background: rgba(255,255,255,.02);
+  transition: border-color .25s, background .25s;
+}
+.drop:hover, .drop.over { border-color: var(--accent); background: rgba(82,230,166,.06); }
+.drop-in { display: grid; gap: 6px; justify-items: center; color: var(--muted); }
+.drop-in b { color: var(--text); font-size: 14.5px; font-weight: 600; }
+.drop-in small { font-size: 12.5px; }
+.drop img { max-height: 160px; max-width: 100%; border-radius: 12px; margin-top: 14px; background: #fff; animation: pop .4s var(--ease); }
+
+/* ---------- dock ---------- */
+.dock {
+  position: fixed; left: 50%; transform: translateX(-50%); z-index: 20;
+  bottom: calc(14px + env(safe-area-inset-bottom)); width: min(440px, calc(100% - 24px));
+  display: grid; grid-template-columns: repeat(4, 1fr); padding: 6px; border-radius: 22px;
+  background: rgba(12,26,19,.86); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+  border: 1px solid var(--line2); box-shadow: 0 18px 40px -12px rgba(0,0,0,.8);
+}
+.dock button {
+  position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; gap: 3px;
+  padding: 9px 0 8px; border: 0; background: transparent; color: var(--muted);
+  font-size: 11.5px; font-weight: 600; cursor: pointer; transition: color .3s;
+}
+.dock button.on { color: var(--ink); }
+.dock-ind {
+  position: absolute; top: 6px; bottom: 6px; left: 6px; width: calc((100% - 12px) / 4);
+  border-radius: 16px; background: linear-gradient(180deg, var(--accent), var(--accent2));
+  transform: translateX(calc(var(--i, 0) * 100%)); transition: transform .5s var(--ease);
+}
+
+/* ---------- toasts / overlays ---------- */
+#toasts {
+  position: fixed; top: calc(12px + env(safe-area-inset-top)); left: 50%; transform: translateX(-50%);
+  z-index: 100; display: grid; gap: 8px; width: min(420px, calc(100% - 24px)); pointer-events: none;
+}
+.toast {
+  display: flex; align-items: center; gap: 10px; padding: 13px 16px; border-radius: 14px;
+  background: #12271d; border: 1px solid var(--line2); box-shadow: 0 14px 34px -10px rgba(0,0,0,.8);
+  font-size: 14px; font-weight: 500; animation: toastIn .45s var(--ease);
+}
+.toast.ok .ti { color: var(--accent); }
+.toast.err { border-color: rgba(255,122,122,.4); }
+.toast.err .ti { color: var(--danger); }
+.toast.out { animation: toastOut .3s forwards; }
+
+.success {
+  position: fixed; inset: 0; z-index: 90; display: grid; place-items: center;
+  background: rgba(5,12,8,.75); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+  opacity: 0; visibility: hidden; transition: opacity .25s, visibility .25s;
+}
+.success.show { opacity: 1; visibility: visible; }
+.ok-box { text-align: center; }
+.ok-box svg { width: 92px; height: 92px; }
+.ok-box p { margin-top: 14px; font-family: var(--display); font-size: 20px; font-weight: 600; }
+.ok-c { fill: none; stroke: var(--accent); stroke-width: 3; stroke-dasharray: 152; stroke-dashoffset: 152; }
+.ok-p { fill: none; stroke: var(--accent); stroke-width: 4; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 42; stroke-dashoffset: 42; }
+.success.show .ok-c { animation: draw .6s .05s var(--ease) forwards; }
+.success.show .ok-p { animation: draw .4s .5s var(--ease) forwards; }
+
+#splash {
+  position: fixed; inset: 0; z-index: 200; display: grid; place-items: center; background: var(--bg);
+  transition: opacity .45s, visibility .45s;
+}
+#splash .logo { margin: 0; animation: pulse 1.4s ease-in-out infinite; }
+#splash.gone { opacity: 0; visibility: hidden; }
+
+@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes viewIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+@keyframes rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+@keyframes pop { from { opacity: 0; transform: scale(.92); } to { opacity: 1; transform: none; } }
+@keyframes shimmer { to { background-position: -200% 0; } }
+@keyframes shake { 0%,100% { transform: none; } 20% { transform: translateX(-7px); } 40% { transform: translateX(6px); } 60% { transform: translateX(-4px); } 80% { transform: translateX(3px); } }
+@keyframes toastIn { from { opacity: 0; transform: translateY(-14px) scale(.96); } to { opacity: 1; transform: none; } }
+@keyframes toastOut { to { opacity: 0; transform: translateY(-10px) scale(.96); } }
+@keyframes draw { to { stroke-dashoffset: 0; } }
+@keyframes pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.07); } }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; animation-delay: 0ms !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
+}
 </style>
 </head>
 
 <body>
+<div class="bg"></div>
+<div id="toasts"></div>
 
-<header>
-  <div>
-    <h1>SALES INCENTIVE PORTAL</h1>
-    <p id="hdrSub">Staff • Sales Entry</p>
-  </div>
-  <button id="logoutBtn" class="logout hidden" onclick="logout()">LOGOUT</button>
-</header>
+<div id="splash"><div class="logo"><span data-icon="wallet" data-size="30"></span></div></div>
 
-<!-- LOGIN / REGISTER -->
-<div id="authBox" class="container">
-  <div class="card">
-    <div class="tabs">
-      <button id="tabLogin" class="active" onclick="switchTab('login')">LOGIN</button>
-      <button id="tabRegister" onclick="switchTab('register')">REGISTER</button>
-    </div>
-
-    <div id="nameWrap" class="hidden">
-      <input id="fullName" placeholder="Aapka Pura Naam" autocomplete="name">
-    </div>
-    <input id="email" type="email" placeholder="Email" autocomplete="username">
-    <input id="password" type="password" placeholder="Password (kam se kam 6 akshar)" autocomplete="current-password">
-    <div id="confirmWrap" class="hidden">
-      <input id="password2" type="password" placeholder="Password dobara" autocomplete="new-password">
-    </div>
-
-    <button id="authBtn" onclick="submitAuth()">LOGIN</button>
-    <p id="authMsg" class="msg"></p>
+<div class="success" id="success">
+  <div class="ok-box">
+    <svg viewBox="0 0 52 52"><circle class="ok-c" cx="26" cy="26" r="24"/><path class="ok-p" d="M15 27l8 8 15-17"/></svg>
+    <p>Entry save ho gayi</p>
   </div>
 </div>
 
-<!-- STAFF APP -->
-<div id="app" class="container hidden">
+<!-- ===== LOGIN / REGISTER ===== -->
+<main id="authView" class="auth hidden">
+  <div class="auth-wrap">
+    <div class="brand">
+      <div class="logo"><span data-icon="wallet" data-size="30"></span></div>
+      <h1>Sales Incentive</h1>
+      <p>Phone bechो, entry karo, incentive pao.</p>
+    </div>
 
-  <div class="card">
-    <h2>My Dashboard</h2>
-    <p class="small" id="welcome"></p>
-    <p>My Entries</p>
-    <div class="stat" id="totalEntries">0</div>
-    <p>My Total Discount</p>
-    <div class="stat" id="totalDiscount">₹0</div>
+    <div class="card">
+      <div class="seg" id="authSeg" style="--n:2;--i:0">
+        <span class="seg-ind"></span>
+        <button type="button" data-mode="login" class="on">Log in</button>
+        <button type="button" data-mode="register">Create account</button>
+      </div>
+
+      <form id="authForm" novalidate>
+        <div class="collapse" id="nameCol"><div>
+          <div class="field"><input id="fullName" placeholder=" " autocomplete="name"><label for="fullName">Aapka pura naam</label></div>
+        </div></div>
+
+        <div class="field"><input id="email" type="email" placeholder=" " autocomplete="username" inputmode="email"><label for="email">Email</label></div>
+
+        <div class="field has-eye">
+          <input id="password" type="password" placeholder=" " autocomplete="current-password"><label for="password">Password</label>
+          <button type="button" class="eye" id="eyeBtn" aria-label="Password dikhao"><span data-icon="eye"></span></button>
+        </div>
+
+        <div class="collapse" id="confCol"><div>
+          <div class="field"><input id="password2" type="password" placeholder=" " autocomplete="new-password"><label for="password2">Password dobara likho</label></div>
+        </div></div>
+
+        <p class="msg" id="authMsg"></p>
+        <button class="btn" id="authBtn" type="submit" style="margin-top:14px">Log in</button>
+      </form>
+    </div>
   </div>
+</main>
 
-  <div class="card">
-    <h2>Payment QR</h2>
-    <p class="small">Apna payment QR (UPI QR ka screenshot) yahan save karo. Admin payment isi QR par karega.</p>
-    <div id="qrWarn" class="warn hidden">Abhi tak QR save nahi hua. Payment ke liye QR zaroor upload karo.</div>
-    <img id="qrPreview" class="hidden" alt="Payment QR">
-    <input id="qrFile" type="file" accept="image/png,image/jpeg,image/webp">
-    <button id="qrBtn" onclick="uploadQR()">SAVE QR</button>
-    <p id="qrMsg" class="msg"></p>
-  </div>
+<!-- ===== APP ===== -->
+<div id="appView" class="hidden">
+  <header class="topbar">
+    <div class="who">
+      <div class="avatar" id="avatar">A</div>
+      <div class="who-t"><div class="who-n" id="hdrName"></div><div class="who-s" id="hdrEmail"></div></div>
+    </div>
+    <button class="icon-btn" id="logoutBtn" aria-label="Log out"><span data-icon="logout"></span></button>
+  </header>
 
-  <div class="card">
-    <h2>New Sales Entry</h2>
-    <p class="small">Entry aapke naam se apne aap save hogi.</p>
+  <main class="wrap">
 
-    <input id="model" placeholder="Phone Model">
-    <input id="imei" placeholder="IMEI Number" maxlength="15" inputmode="numeric">
-    <input id="discount" placeholder="Discount amount (₹) or No" inputmode="decimal">
-    <p class="small" style="margin:12px 0 0">Date</p>
-    <input id="saleDate" type="date" style="margin-top:4px">
+    <section class="view active" id="v-home">
+      <div class="hero">
+        <p id="greet">Hello</p>
+        <h2 id="heroName"></h2>
+      </div>
 
-    <select id="status">
-      <option value="Active">Active</option>
-      <option value="Inactive">Inactive</option>
-    </select>
+      <div id="qrBanner" class="banner hidden" data-go="qr" role="button" tabindex="0">
+        <span data-icon="qr" data-size="22"></span>
+        <div><b>Payment QR abhi baaki hai</b><small>Incentive payment ke liye apna QR save karo</small></div>
+        <span data-icon="chev"></span>
+      </div>
 
-    <button id="submitBtn" onclick="addEntry()">SUBMIT ENTRY</button>
-  </div>
+      <div class="stats">
+        <div class="stat"><div class="k">Meri entries</div><div class="v" id="stEntries">0</div></div>
+        <div class="stat money"><div class="k">Total discount</div><div class="v" id="stDisc">₹0</div></div>
+        <div class="stat"><div class="k">Approved</div><div class="v" id="stAppr">0</div></div>
+        <div class="stat"><div class="k">Paid</div><div class="v" id="stPaid">0</div></div>
+      </div>
 
-  <div class="card">
-    <h2>My Entries</h2>
-    <button onclick="loadEntries()" style="margin:0 0 6px">REFRESH</button>
-    <div id="entries"></div>
-  </div>
+      <button class="btn" data-go="new" style="margin-top:16px"><span data-icon="plus"></span>New entry</button>
 
+      <div class="sec-h"><h3>Recent entries</h3><button class="link" data-go="list">Sab dekho</button></div>
+      <div id="recent"></div>
+    </section>
+
+    <section class="view" id="v-new">
+      <div class="sec-h" style="margin-top:6px"><h3>New sales entry</h3></div>
+      <form class="card" id="entryForm" novalidate>
+        <p class="note">Entry <b id="asName"></b> ke naam se save hogi.</p>
+
+        <div class="field"><input id="model" placeholder=" " autocomplete="off"><label for="model">Phone model</label></div>
+        <div class="field"><input id="imei" placeholder=" " inputmode="numeric" autocomplete="off" maxlength="40"><label for="imei">IMEI number</label><span class="hint" id="imeiHint">0/15</span></div>
+        <div class="field"><input id="discount" placeholder=" " inputmode="decimal" autocomplete="off"><label for="discount">Discount (₹) ya No</label></div>
+        <div class="field always"><input id="saleDate" type="date"><label for="saleDate">Date</label></div>
+
+        <p class="lbl">Status</p>
+        <div class="seg" id="statusSeg" style="--n:2;--i:0">
+          <span class="seg-ind"></span>
+          <button type="button" data-v="Active" class="on">Active</button>
+          <button type="button" data-v="Inactive">Inactive</button>
+        </div>
+
+        <button class="btn" id="submitBtn" type="submit" style="margin-top:20px">Save entry</button>
+      </form>
+    </section>
+
+    <section class="view" id="v-list">
+      <div class="sec-h" style="margin-top:6px">
+        <h3>Meri entries</h3>
+        <button class="icon-btn sm" id="refreshBtn" aria-label="Refresh"><span data-icon="refresh" data-size="16"></span></button>
+      </div>
+      <div class="chips" id="listFilters"></div>
+      <div id="list"></div>
+    </section>
+
+    <section class="view" id="v-qr">
+      <div class="sec-h" style="margin-top:6px"><h3>Payment QR</h3><span class="chip c-warn" id="qrStatus"></span></div>
+      <div class="card">
+        <p class="note">Apna UPI QR (screenshot) yahan save karo. Admin isi QR par payment karega.</p>
+
+        <div class="qr-show">
+          <img id="qrImg" class="hidden" alt="Mera payment QR">
+          <div id="qrEmpty" class="qr-empty"><span data-icon="qr" data-size="34"></span><span>QR abhi save nahi hai</span></div>
+        </div>
+
+        <label class="drop" id="drop" for="qrFile">
+          <input type="file" id="qrFile" accept="image/png,image/jpeg,image/webp" hidden>
+          <div class="drop-in">
+            <span data-icon="upload" data-size="22"></span>
+            <b id="dropT">Image chuno ya yahan chhodo</b>
+            <small>PNG, JPG ya WEBP</small>
+          </div>
+          <img id="dropPrev" class="hidden" alt="">
+        </label>
+
+        <button class="btn" id="qrBtn" type="button" style="margin-top:14px" disabled>Save QR</button>
+        <p class="msg" id="qrMsg"></p>
+      </div>
+    </section>
+
+  </main>
+
+  <nav class="dock" id="dock" style="--i:0" aria-label="Menu">
+    <span class="dock-ind"></span>
+    <button data-view="home" class="on"><span data-icon="home"></span>Home</button>
+    <button data-view="new"><span data-icon="plus"></span>New</button>
+    <button data-view="list"><span data-icon="list"></span>Entries</button>
+    <button data-view="qr"><span data-icon="qr"></span>QR</button>
+  </nav>
 </div>
-
-<footer>Sales Incentive Portal</footer>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
@@ -142,29 +521,150 @@ var db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
 });
 
 var sales = [];
-var me = null;        // logged in user
-var profile = null;   // profiles row
+var me = null;          // logged in user
+var profile = null;     // profiles row
 var mode = "login";
+var loaded = false;
+var lastLoad = 0;
+var fApproval = "All";
+var entryStatus = "Active";
+var curView = "home";
+var VIEWS = ["home", "new", "list", "qr"];
+
+/* ---------- helpers ---------- */
 
 function $(id) { return document.getElementById(id); }
 
-function setMsg(id, text, cls) {
+var ICONS = {
+  home: '<path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/>',
+  plus: '<path d="M12 5v14M5 12h14"/>',
+  list: '<path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/>',
+  qr: '<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3M21 14v.01M14 21h.01M17 21h4v-4"/>',
+  logout: '<path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/>',
+  check: '<path d="M5 13l4 4L19 7"/>',
+  x: '<path d="M6 6l12 12M18 6L6 18"/>',
+  clock: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+  eye: '<path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>',
+  eyeoff: '<path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/><path d="M3 3l18 18"/>',
+  refresh: '<path d="M20 11a8 8 0 10-2 6M20 4v7h-7"/>',
+  wallet: '<rect x="3" y="6" width="18" height="14" rx="3"/><path d="M3 10h18M16 15h2"/><path d="M6 6l9-3 1 3"/>',
+  upload: '<path d="M12 15V3M7 8l5-5 5 5M5 21h14"/>',
+  chev: '<path d="M9 6l6 6-6 6"/>',
+  phone: '<rect x="6" y="2" width="12" height="20" rx="3"/><path d="M11 18h2"/>'
+};
+
+function icon(n, s) {
+  s = s || 18;
+  return '<svg viewBox="0 0 24 24" width="' + s + '" height="' + s + '" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + ICONS[n] + '</svg>';
+}
+
+function fillIcons() {
+  document.querySelectorAll("[data-icon]").forEach(function (el) {
+    el.innerHTML = icon(el.getAttribute("data-icon"), Number(el.getAttribute("data-size")) || 18);
+  });
+}
+
+function escapeHTML(value) {
+  return String(value).replace(/[&<>"']/g, function (ch) {
+    return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[ch];
+  });
+}
+
+function toast(msg, type) {
+  var box = $("toasts");
+  var t = document.createElement("div");
+  t.className = "toast " + (type || "info");
+  t.innerHTML = '<span class="ti">' + icon(type === "err" ? "x" : type === "ok" ? "check" : "clock", 17) + '</span><span>' + escapeHTML(msg) + '</span>';
+  box.appendChild(t);
+  setTimeout(function () {
+    t.classList.add("out");
+    setTimeout(function () { t.remove(); }, 320);
+  }, 3400);
+}
+
+function setLoading(btn, on, label) {
+  if (on) {
+    btn._h = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spin"></span><span>' + (label || "") + '</span>';
+  } else {
+    btn.disabled = false;
+    if (btn._h != null) btn.innerHTML = btn._h;
+  }
+}
+
+function animateNumber(el, to, fmt) {
+  fmt = fmt || function (n) { return String(Math.round(n)); };
+  var from = el._v || 0;
+  el._v = to;
+  if (from === to) { el.textContent = fmt(to); return; }
+  var t0 = null, dur = 700;
+  function step(ts) {
+    if (t0 === null) t0 = ts;
+    var p = Math.min(1, (ts - t0) / dur);
+    var e = 1 - Math.pow(1 - p, 3);
+    el.textContent = fmt(from + (to - from) * e);
+    if (p < 1) requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+}
+
+function rupee(n) { return "₹" + Math.round(n).toLocaleString("en-IN"); }
+
+// Hindi/Arabic digits ko English digits mein badalta hai
+function normDigits(s) {
+  return String(s)
+    .replace(/[\u0966-\u096F]/g, function (c) { return String(c.charCodeAt(0) - 0x0966); })
+    .replace(/[\u0660-\u0669]/g, function (c) { return String(c.charCodeAt(0) - 0x0660); });
+}
+
+function todayStr() {
+  var d = new Date();
+  return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+}
+
+function fmtDate(v) {
+  var s = String(v || "");
+  var m = /^(\d{4})-(\d{2})-(\d{2})/.exec(s);
+  if (m) return m[3] + "/" + m[2] + "/" + m[1];
+  return new Date(v).toLocaleDateString("en-IN");
+}
+
+function initial(name) {
+  var s = String(name || "?").trim();
+  return (s.charAt(0) || "?").toUpperCase();
+}
+
+function fail(id, msg) {
+  toast(msg, "err");
   var el = $(id);
-  el.textContent = text || "";
-  el.className = "msg " + (cls || "");
+  var f = el.closest(".field") || el;
+  f.classList.remove("shake");
+  void f.offsetWidth;
+  f.classList.add("shake");
+  el.focus();
 }
 
 /* ---------- AUTH ---------- */
 
-function switchTab(m) {
+function setMode(m) {
   mode = m;
-  $("tabLogin").classList.toggle("active", m === "login");
-  $("tabRegister").classList.toggle("active", m === "register");
-  $("nameWrap").classList.toggle("hidden", m !== "register");
-  $("confirmWrap").classList.toggle("hidden", m !== "register");
-  $("authBtn").textContent = m === "login" ? "LOGIN" : "REGISTER";
-  $("password").autocomplete = m === "login" ? "current-password" : "new-password";
-  setMsg("authMsg", "");
+  var seg = $("authSeg");
+  seg.style.setProperty("--i", m === "login" ? 0 : 1);
+  seg.querySelectorAll("button").forEach(function (b) {
+    b.classList.toggle("on", b.getAttribute("data-mode") === m);
+  });
+  $("nameCol").classList.toggle("open", m === "register");
+  $("confCol").classList.toggle("open", m === "register");
+  $("authBtn").textContent = m === "login" ? "Log in" : "Create account";
+  $("password").setAttribute("autocomplete", m === "login" ? "current-password" : "new-password");
+  setAuthMsg("");
+}
+
+function setAuthMsg(text, cls) {
+  var el = $("authMsg");
+  el.textContent = text || "";
+  el.className = "msg " + (cls || "");
 }
 
 async function submitAuth() {
@@ -172,35 +672,31 @@ async function submitAuth() {
   var password = $("password").value;
   var btn = $("authBtn");
 
-  if (!email || !password) {
-    setMsg("authMsg", "Email aur password daalo.", "err");
-    return;
-  }
+  if (!email) { fail("email", "Email likho."); return; }
+  if (!password) { fail("password", "Password likho."); return; }
 
   if (mode === "register") {
-    var name = $("fullName").value.trim();
-    if (!name) { setMsg("authMsg", "Apna naam daalo.", "err"); return; }
-    if (password.length < 6) { setMsg("authMsg", "Password kam se kam 6 akshar ka rakho.", "err"); return; }
-    if (password !== $("password2").value) { setMsg("authMsg", "Dono password same nahi hain.", "err"); return; }
+    var fullName = $("fullName").value.trim();
+    if (!fullName) { fail("fullName", "Apna naam likho."); return; }
+    if (password.length < 6) { fail("password", "Password kam se kam 6 akshar ka rakho."); return; }
+    if (password !== $("password2").value) { fail("password2", "Dono password same nahi hain."); return; }
 
-    btn.disabled = true;
-    setMsg("authMsg", "Register ho raha hai...");
+    setLoading(btn, true, "Account ban raha hai");
+    setAuthMsg("");
 
     var r = await db.auth.signUp({
       email: email,
       password: password,
-      options: { data: { full_name: name } }
+      options: { data: { full_name: fullName } }
     });
 
-    btn.disabled = false;
+    setLoading(btn, false);
 
-    if (r.error) { setMsg("authMsg", "Register nahi hua: " + r.error.message, "err"); return; }
+    if (r.error) { setAuthMsg("Account nahi bana: " + r.error.message, "err"); return; }
 
     if (!r.data.session) {
-      // Email confirmation on hai
-      setMsg("authMsg", "Register ho gaya. Apne email par aaya link khol kar confirm karo, phir LOGIN karo.", "ok");
-      switchTab("login");
-      setMsg("authMsg", "Register ho gaya. Apne email par aaya link khol kar confirm karo, phir LOGIN karo.", "ok");
+      setMode("login");
+      setAuthMsg("Account ban gaya. Email par aaya link kholkar confirm karo, phir log in karo.", "ok");
       return;
     }
 
@@ -208,14 +704,14 @@ async function submitAuth() {
     return;
   }
 
-  btn.disabled = true;
-  setMsg("authMsg", "Login ho raha hai...");
+  setLoading(btn, true, "Log in ho raha hai");
+  setAuthMsg("");
 
   var res = await db.auth.signInWithPassword({ email: email, password: password });
 
-  btn.disabled = false;
+  setLoading(btn, false);
 
-  if (res.error) { setMsg("authMsg", "Login fail: " + res.error.message, "err"); return; }
+  if (res.error) { setAuthMsg("Log in nahi hua: " + res.error.message, "err"); return; }
 
   $("password").value = "";
   await startApp(res.data.user);
@@ -223,12 +719,11 @@ async function submitAuth() {
 
 async function logout() {
   await db.auth.signOut();
-  me = null; profile = null; sales = [];
-  $("app").classList.add("hidden");
-  $("authBox").classList.remove("hidden");
-  $("logoutBtn").classList.add("hidden");
-  $("hdrSub").textContent = "Staff • Sales Entry";
-  setMsg("authMsg", "");
+  me = null; profile = null; sales = []; loaded = false;
+  $("appView").classList.add("hidden");
+  $("authView").classList.remove("hidden");
+  setMode("login");
+  go("home");
 }
 
 /* ---------- APP START ---------- */
@@ -239,7 +734,8 @@ async function startApp(user) {
   var p = await db.from("profiles").select("*").eq("id", me.id).maybeSingle();
 
   if (p.error) {
-    setMsg("authMsg", "Profile load nahi hua: " + p.error.message, "err");
+    $("authView").classList.remove("hidden");
+    setAuthMsg("Profile load nahi hua: " + p.error.message, "err");
     return;
   }
 
@@ -250,37 +746,251 @@ async function startApp(user) {
     var meta = (me.user_metadata && me.user_metadata.full_name) || (me.email || "").split("@")[0];
     var ins = await db.from("profiles").insert({ id: me.id, email: me.email, full_name: meta }).select().single();
     if (ins.error) {
-      setMsg("authMsg", "Profile nahi ban paya: " + ins.error.message, "err");
+      $("authView").classList.remove("hidden");
+      setAuthMsg("Profile nahi ban paya: " + ins.error.message, "err");
       return;
     }
     profile = ins.data;
   }
 
-  $("authBox").classList.add("hidden");
-  $("app").classList.remove("hidden");
-  $("logoutBtn").classList.remove("hidden");
-  $("hdrSub").textContent = profile.full_name;
-  $("welcome").textContent = "Welcome, " + profile.full_name + " (" + (me.email || "") + ")";
+  var first = profile.full_name.split(" ")[0];
+  var h = new Date().getHours();
+  $("greet").textContent = h < 12 ? "Good morning" : h < 17 ? "Good afternoon" : "Good evening";
+  $("heroName").textContent = first;
+  $("hdrName").textContent = profile.full_name;
+  $("hdrEmail").textContent = me.email || "";
+  $("avatar").textContent = initial(profile.full_name);
+  $("asName").textContent = profile.full_name;
 
-  await showQR();
-  await loadEntries();
+  $("authView").classList.add("hidden");
+  $("appView").classList.remove("hidden");
+
+  renderQR();
+  await loadEntries(true);
+}
+
+/* ---------- NAVIGATION ---------- */
+
+function go(v) {
+  curView = v;
+  VIEWS.forEach(function (n) { $("v-" + n).classList.toggle("active", n === v); });
+  $("dock").style.setProperty("--i", VIEWS.indexOf(v));
+  $("dock").querySelectorAll("button").forEach(function (b) {
+    b.classList.toggle("on", b.getAttribute("data-view") === v);
+  });
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+/* ---------- ENTRIES ---------- */
+
+async function loadEntries(animate, silent) {
+  if (!me) return;
+  var btn = $("refreshBtn");
+  if (!silent) btn.classList.add("spinning");
+
+  var r = await db
+    .from("sales")
+    .select("*")
+    .eq("user_id", me.id)
+    .order("created_at", { ascending: false })
+    .limit(500);
+
+  btn.classList.remove("spinning");
+  loaded = true;
+  lastLoad = Date.now();
+
+  if (r.error) {
+    toast("Entries load nahi hui: " + r.error.message, "err");
+    if (!sales.length) {
+      $("list").innerHTML = '<div class="empty"><b>Entries load nahi hui</b><p>' + escapeHTML(r.error.message) + '</p></div>';
+    }
+    return;
+  }
+
+  sales = r.data || [];
+  renderAll(animate !== false);
+}
+
+function fmtDiscount(v) {
+  var s = String(v).trim();
+  var n = Number(s);
+  if (s !== "" && isFinite(n)) return '<div class="s-amt">' + rupee(n) + '</div>';
+  if (/^no$/i.test(s)) return '<div class="s-amt none">No discount</div>';
+  return '<div class="s-amt none">' + escapeHTML(s) + '</div>';
+}
+
+function slip(it, i, animate) {
+  var ap = it.approval;
+  var apc = ap === "Approved" ? "c-ok" : ap === "Rejected" ? "c-bad" : "c-warn";
+  var api = ap === "Approved" ? "check" : ap === "Rejected" ? "x" : "clock";
+  var paid = it.payment === "Paid";
+
+  return '<article class="slip' + (animate ? ' in' : '') + '" style="--d:' + (Math.min(i, 8) * 60) + 'ms">' +
+    '<div class="slip-top">' +
+      '<div><div class="s-model">' + escapeHTML(it.model) + '</div>' +
+      '<div class="s-imei">IMEI ' + escapeHTML(it.imei) + '</div></div>' +
+      fmtDiscount(it.discount) +
+    '</div>' +
+    '<div class="slip-bot">' +
+      '<span class="chip ' + apc + '">' + icon(api, 13) + escapeHTML(ap) + '</span>' +
+      '<span class="chip ' + (paid ? 'c-ok' : 'c-mute') + '">' + icon("wallet", 13) + escapeHTML(it.payment) + '</span>' +
+      '<span class="chip c-mute">' + escapeHTML(it.status) + '</span>' +
+      '<span class="s-date">' + escapeHTML(fmtDate(it.sale_date || it.created_at)) + '</span>' +
+    '</div>' +
+  '</article>';
+}
+
+function emptyState(withBtn) {
+  return '<div class="empty">' + icon("phone", 40) +
+    '<b>Abhi koi entry nahi</b><p>Pehli sale ki entry karo, yahan dikhegi.</p>' +
+    (withBtn ? '<button class="btn" data-go="new">Entry karo</button>' : '') + '</div>';
+}
+
+function skeletons() {
+  return '<div class="skel"></div><div class="skel"></div><div class="skel"></div>';
+}
+
+function renderAll(animate) {
+  // stats
+  var total = sales.reduce(function (s, x) {
+    var n = Number(x.discount);
+    return s + (isFinite(n) ? n : 0);
+  }, 0);
+  animateNumber($("stEntries"), sales.length);
+  animateNumber($("stDisc"), total, rupee);
+  animateNumber($("stAppr"), sales.filter(function (x) { return x.approval === "Approved"; }).length);
+  animateNumber($("stPaid"), sales.filter(function (x) { return x.payment === "Paid"; }).length);
+
+  // recent
+  $("recent").innerHTML = !loaded ? skeletons()
+    : !sales.length ? emptyState(false)
+    : sales.slice(0, 3).map(function (x, i) { return slip(x, i, animate); }).join("");
+
+  // filters
+  var opts = ["All", "Pending", "Approved", "Rejected"];
+  $("listFilters").innerHTML = opts.map(function (o) {
+    var n = o === "All" ? sales.length : sales.filter(function (x) { return x.approval === o; }).length;
+    return '<button class="fchip' + (fApproval === o ? ' on' : '') + '" data-f="' + o + '">' + o + '<i>' + n + '</i></button>';
+  }).join("");
+
+  // list
+  var list = sales.filter(function (x) { return fApproval === "All" || x.approval === fApproval; });
+  $("list").innerHTML = !loaded ? skeletons()
+    : !sales.length ? emptyState(true)
+    : !list.length ? '<div class="empty"><b>Is filter mein koi entry nahi</b><p>Doosra filter chuno.</p></div>'
+    : list.map(function (x, i) { return slip(x, i, animate); }).join("");
+}
+
+/* ---------- NEW ENTRY ---------- */
+
+async function addEntry() {
+  var model = $("model").value.trim();
+  var imei = normDigits($("imei").value).replace(/\D/g, "");
+  var disc = normDigits($("discount").value).trim();
+  var d = $("saleDate").value;
+
+  if (!model) { fail("model", "Phone model likho."); return; }
+  if (!/^\d{15}$/.test(imei)) { fail("imei", "IMEI poore 15 digit ka hona chahiye."); return; }
+
+  var discount;
+  if (/^no$/i.test(disc)) {
+    discount = "No";
+  } else {
+    var n = Number(disc.replace(/,/g, ""));
+    if (disc === "" || !isFinite(n) || n < 0) { fail("discount", "Discount mein amount likho ya No."); return; }
+    discount = String(n);
+  }
+
+  if (!d) { fail("saleDate", "Date chuno."); return; }
+  if (d > todayStr()) { fail("saleDate", "Aage ki date nahi chalegi."); return; }
+
+  var btn = $("submitBtn");
+  setLoading(btn, true, "Save ho rahi hai");
+
+  var r = await db.from("sales").insert({
+    user_id: me.id,
+    staff: profile.full_name,
+    model: model,
+    imei: imei,
+    discount: discount,
+    status: entryStatus,
+    sale_date: d,
+    approval: "Pending",
+    payment: "Unpaid"
+  });
+
+  setLoading(btn, false);
+
+  if (r.error) {
+    if (r.error.code === "23505") {
+      fail("imei", "Ye IMEI pehle se entry ho chuka hai.");
+    } else {
+      toast("Entry save nahi hui: " + r.error.message, "err");
+    }
+    return;
+  }
+
+  $("model").value = "";
+  $("imei").value = "";
+  $("discount").value = "";
+  $("saleDate").value = todayStr();
+  $("imeiHint").textContent = "0/15";
+  $("imeiHint").classList.remove("ok");
+
+  $("success").classList.add("show");
+  await loadEntries(true, true);
+
+  setTimeout(function () {
+    $("success").classList.remove("show");
+    go("list");
+  }, 1300);
 }
 
 /* ---------- PAYMENT QR ---------- */
 
-async function showQR() {
-  var img = $("qrPreview");
+function renderQR() {
+  var has = !!(profile && profile.qr_data);
+  var img = $("qrImg");
+  if (has) img.src = profile.qr_data;
+  else img.removeAttribute("src");
+  img.classList.toggle("hidden", !has);
+  $("qrEmpty").classList.toggle("hidden", has);
+  $("qrBanner").classList.toggle("hidden", has);
+  var st = $("qrStatus");
+  st.className = "chip " + (has ? "c-ok" : "c-warn");
+  st.innerHTML = icon(has ? "check" : "clock", 13) + (has ? "Saved" : "Baaki hai");
+}
 
-  if (!profile || !profile.qr_data) {
-    img.classList.add("hidden");
-    img.removeAttribute("src");
-    $("qrWarn").classList.remove("hidden");
+function resetDrop() {
+  $("dropPrev").classList.add("hidden");
+  $("dropPrev").removeAttribute("src");
+  $("dropT").textContent = "Image chuno ya yahan chhodo";
+  $("qrBtn").disabled = true;
+}
+
+function onQrPicked() {
+  var f = $("qrFile").files[0];
+  if (!f) { resetDrop(); return; }
+
+  if (["image/png", "image/jpeg", "image/webp"].indexOf(f.type) === -1) {
+    toast("Sirf PNG, JPG ya WEBP image chalegi.", "err");
+    $("qrFile").value = "";
+    resetDrop();
     return;
   }
 
-  img.src = profile.qr_data;
-  img.classList.remove("hidden");
-  $("qrWarn").classList.add("hidden");
+  if (f.size > 8 * 1024 * 1024) {
+    toast("Image 8 MB se chhoti honi chahiye.", "err");
+    $("qrFile").value = "";
+    resetDrop();
+    return;
+  }
+
+  $("dropPrev").src = URL.createObjectURL(f);
+  $("dropPrev").classList.remove("hidden");
+  $("dropT").textContent = f.name;
+  $("qrBtn").disabled = false;
+  $("qrMsg").textContent = "";
 }
 
 // Image ko chhota karke base64 (data URL) bana deta hai
@@ -318,195 +1028,135 @@ function prepareImage(file) {
 
 async function uploadQR() {
   var file = $("qrFile").files[0];
-
-  if (!file) { setMsg("qrMsg", "Pehle QR ki image chuno.", "err"); return; }
-
-  if (["image/png", "image/jpeg", "image/webp"].indexOf(file.type) === -1) {
-    setMsg("qrMsg", "Sirf PNG, JPG ya WEBP image chalegi.", "err");
-    return;
-  }
-
-  if (file.size > 8 * 1024 * 1024) {
-    setMsg("qrMsg", "Image 8 MB se chhoti honi chahiye.", "err");
-    return;
-  }
+  if (!file) { toast("Pehle QR ki image chuno.", "err"); return; }
 
   var btn = $("qrBtn");
-  btn.disabled = true;
-  setMsg("qrMsg", "Save ho raha hai...");
+  setLoading(btn, true, "Save ho raha hai");
+  $("qrMsg").textContent = "";
 
   var data;
   try {
     data = await prepareImage(file);
   } catch (e) {
-    btn.disabled = false;
-    setMsg("qrMsg", e.message, "err");
+    setLoading(btn, false);
+    toast(e.message, "err");
     return;
   }
 
   // qr_path sirf ek flag hai ki QR saved hai (admin list ko halki rakhne ke liye)
   var upd = await db.from("profiles").update({ qr_data: data, qr_path: "base64" }).eq("id", me.id).select().single();
 
-  btn.disabled = false;
+  setLoading(btn, false);
 
   if (upd.error) {
-    setMsg("qrMsg", "QR database mein save nahi hua: " + upd.error.message, "err");
+    toast("QR save nahi hua: " + upd.error.message, "err");
     return;
   }
 
   profile = upd.data;
   $("qrFile").value = "";
-  setMsg("qrMsg", "QR save ho gaya.", "ok");
-  await showQR();
+  resetDrop();
+  renderQR();
+  toast("QR save ho gaya", "ok");
 }
 
-/* ---------- ENTRIES ---------- */
+/* ---------- EVENTS ---------- */
 
-async function loadEntries() {
-  var r = await db
-    .from("sales")
-    .select("*")
-    .eq("user_id", me.id)
-    .order("created_at", { ascending: false })
-    .limit(500);
+function bindEvents() {
+  // login / register
+  $("authSeg").addEventListener("click", function (e) {
+    var b = e.target.closest("button[data-mode]");
+    if (b) setMode(b.getAttribute("data-mode"));
+  });
+  $("authForm").addEventListener("submit", function (e) { e.preventDefault(); submitAuth(); });
+  $("eyeBtn").addEventListener("click", function () {
+    var p = $("password");
+    var show = p.type === "password";
+    p.type = show ? "text" : "password";
+    this.innerHTML = icon(show ? "eyeoff" : "eye");
+  });
+  $("logoutBtn").addEventListener("click", logout);
 
-  if (r.error) {
-    $("entries").innerHTML = '<p class="small">Entries load nahi hui: ' + escapeHTML(r.error.message) + '</p>';
-    return;
-  }
-
-  sales = r.data || [];
-  render();
-}
-
-async function addEntry() {
-  var model = $("model").value.trim();
-  var imei = $("imei").value.trim();
-  var discount = $("discount").value.trim();
-  var status = $("status").value;
-  var saleDate = $("saleDate").value;
-
-  if (!saleDate) {
-    alert("Date chuno.");
-    return;
-  }
-
-  if (saleDate > todayStr()) {
-    alert("Aage ki date nahi chalegi.");
-    return;
-  }
-
-  if (!model || !imei || !discount) {
-    alert("Please fill all fields.");
-    return;
-  }
-
-  if (!/^\d{15}$/.test(imei)) {
-    alert("IMEI must be 15 digits.");
-    return;
-  }
-
-  var btn = $("submitBtn");
-  btn.disabled = true;
-  btn.textContent = "SAVING...";
-
-  var r = await db.from("sales").insert({
-    user_id: me.id,
-    staff: profile.full_name,
-    model: model,
-    imei: imei,
-    discount: discount,
-    status: status,
-    sale_date: saleDate,
-    approval: "Pending",
-    payment: "Unpaid"
+  // navigation
+  $("dock").addEventListener("click", function (e) {
+    var b = e.target.closest("button[data-view]");
+    if (b) go(b.getAttribute("data-view"));
+  });
+  document.addEventListener("click", function (e) {
+    var g = e.target.closest("[data-go]");
+    if (g) go(g.getAttribute("data-go"));
+  });
+  $("qrBanner").addEventListener("keydown", function (e) {
+    if (e.key === "Enter" || e.key === " ") { e.preventDefault(); go("qr"); }
   });
 
-  btn.disabled = false;
-  btn.textContent = "SUBMIT ENTRY";
-
-  if (r.error) {
-    if (r.error.code === "23505") {
-      alert("This IMEI is already entered.");
-    } else {
-      alert("Save nahi hua: " + r.error.message);
-    }
-    return;
-  }
-
-  $("model").value = "";
-  $("imei").value = "";
-  $("discount").value = "";
+  // entry form
+  $("entryForm").addEventListener("submit", function (e) { e.preventDefault(); addEntry(); });
+  $("imei").addEventListener("input", function () {
+    var v = normDigits(this.value).replace(/\D/g, "").slice(0, 15);
+    if (v !== this.value) this.value = v;
+    $("imeiHint").textContent = v.length + "/15";
+    $("imeiHint").classList.toggle("ok", v.length === 15);
+  });
+  $("discount").addEventListener("blur", function () {
+    var v = normDigits(this.value).trim();
+    if (/^no$/i.test(v)) this.value = "No";
+  });
+  $("statusSeg").addEventListener("click", function (e) {
+    var b = e.target.closest("button[data-v]");
+    if (!b) return;
+    entryStatus = b.getAttribute("data-v");
+    this.style.setProperty("--i", entryStatus === "Active" ? 0 : 1);
+    this.querySelectorAll("button").forEach(function (x) { x.classList.toggle("on", x === b); });
+  });
   $("saleDate").value = todayStr();
+  $("saleDate").max = todayStr();
 
-  alert("Entry saved!");
-  loadEntries();
-}
+  // list
+  $("listFilters").addEventListener("click", function (e) {
+    var b = e.target.closest("button[data-f]");
+    if (!b) return;
+    fApproval = b.getAttribute("data-f");
+    renderAll(false);
+  });
+  $("refreshBtn").addEventListener("click", function () { loadEntries(true); });
 
-function render() {
-  $("totalEntries").textContent = sales.length;
+  // QR
+  $("qrFile").addEventListener("change", onQrPicked);
+  $("qrBtn").addEventListener("click", uploadQR);
+  var drop = $("drop");
+  drop.addEventListener("dragover", function (e) { e.preventDefault(); drop.classList.add("over"); });
+  drop.addEventListener("dragleave", function () { drop.classList.remove("over"); });
+  drop.addEventListener("drop", function (e) {
+    e.preventDefault();
+    drop.classList.remove("over");
+    if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files.length) {
+      try { $("qrFile").files = e.dataTransfer.files; } catch (err) {}
+      onQrPicked();
+    }
+  });
 
-  var total = sales.reduce(function (sum, item) {
-    var n = Number(item.discount);
-    return sum + (Number.isFinite(n) ? n : 0);
-  }, 0);
-
-  $("totalDiscount").textContent = "₹" + total.toLocaleString("en-IN");
-
-  var box = $("entries");
-
-  if (!sales.length) {
-    box.innerHTML = '<p class="small">No entries yet.</p>';
-    return;
-  }
-
-  box.innerHTML = sales.map(function (item) {
-    return '<div class="entry">' +
-      '<strong>' + escapeHTML(item.model) + '</strong><br>' +
-      '<span class="small">IMEI: ' + escapeHTML(item.imei) + '</span><br>' +
-      '<span class="small">Discount: ' + escapeHTML(item.discount) + '</span><br>' +
-      '<span class="small">Status: ' + escapeHTML(item.status) + '</span><br>' +
-      '<span class="tag ' + escapeHTML(item.approval) + '">' + escapeHTML(item.approval) + '</span>' +
-      '<span class="small"> • </span>' +
-      '<span class="tag ' + escapeHTML(item.payment) + '">' + escapeHTML(item.payment) + '</span><br>' +
-      '<span class="small">Date: ' + escapeHTML(fmtDate(item.sale_date || item.created_at)) + '</span>' +
-    '</div>';
-  }).join("");
-}
-
-// Aaj ki date (aapke local time ke hisaab se) YYYY-MM-DD mein
-function todayStr() {
-  var d = new Date();
-  var m = String(d.getMonth() + 1).padStart(2, "0");
-  var day = String(d.getDate()).padStart(2, "0");
-  return d.getFullYear() + "-" + m + "-" + day;
-}
-
-// YYYY-MM-DD ko DD/MM/YYYY dikhata hai
-function fmtDate(v) {
-  var s = String(v || "");
-  var m = /^(\d{4})-(\d{2})-(\d{2})/.exec(s);
-  if (m) return m[3] + "/" + m[2] + "/" + m[1];
-  return new Date(v).toLocaleDateString("en-IN");
-}
-
-function escapeHTML(value) {
-  return String(value).replace(/[&<>"']/g, function (ch) {
-    return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[ch];
+  // tab wapas khulne par entries chup-chaap refresh
+  document.addEventListener("visibilitychange", function () {
+    if (!document.hidden && me && Date.now() - lastLoad > 20000) loadEntries(false, true);
   });
 }
 
 /* ---------- INIT ---------- */
 
-$("saleDate").value = todayStr();
-$("saleDate").max = todayStr();
-
-$("password").addEventListener("keydown", function (e) {
-  if (e.key === "Enter" && mode === "login") submitAuth();
-});
+fillIcons();
+bindEvents();
+setMode("login");
 
 db.auth.getSession().then(function (r) {
-  if (r.data && r.data.session) startApp(r.data.session.user);
+  if (r.data && r.data.session) {
+    return startApp(r.data.session.user);
+  }
+  $("authView").classList.remove("hidden");
+}).catch(function () {
+  $("authView").classList.remove("hidden");
+}).then(function () {
+  $("splash").classList.add("gone");
 });
 </script>
 
