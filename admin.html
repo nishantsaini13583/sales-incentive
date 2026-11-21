@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sales Incentive Portal - Admin</title>
+
+<style>
+* { box-sizing: border-box; font-family: Arial, sans-serif; }
+body { margin: 0; background: #0b0f0e; color: white; }
+header { background: #111917; padding: 20px; border-bottom: 1px solid #263b32; display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+header h1 { color: #20d98b; margin: 0; font-size: 23px; }
+header p { color: #a5b4ad; font-size: 13px; margin: 6px 0 0; }
+.container { max-width: 900px; margin: auto; padding: 18px; }
+.card { background: #151d19; border: 1px solid #263b32; border-radius: 15px; padding: 18px; margin-bottom: 15px; }
+.card h2 { margin-top: 0; font-size: 18px; }
+input, select, button {
+  width: 100%; padding: 12px; margin-top: 10px; border-radius: 9px;
+  border: 1px solid #34473d; background: #0d1410; color: white; font-size: 15px;
+}
+button { background: #16a765; border: none; font-weight: bold; cursor: pointer; }
+button:hover { background: #118651; }
+button:disabled { opacity: 0.6; cursor: not-allowed; }
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 12px; }
+.stat { color: #20d98b; font-size: 25px; font-weight: bold; }
+.small { color: #9caea4; font-size: 12px; }
+.msg { font-size: 13px; margin: 10px 0 0; }
+.err { color: #ff6b6b; }
+.filters { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 10px; }
+.filters input, .filters select { margin-top: 0; }
+@media (max-width: 600px) { .filters { grid-template-columns: 1fr; } }
+.entry { border-bottom: 1px solid #29372f; padding: 14px 0; word-break: break-word; }
+.tag { font-size: 12px; font-weight: bold; }
+.Pending { color: #f5c542; }
+.Approved { color: #20d98b; }
+.Rejected { color: #ff6b6b; }
+.Paid { color: #20d98b; }
+.Unpaid { color: #9caea4; }
+.actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+.actions button, .staffrow button { width: auto; margin-top: 0; padding: 8px 14px; font-size: 13px; }
+.btn-approve { background: #16a765; }
+.btn-reject { background: #c0392b; }
+.btn-paid { background: #2d7dd2; }
+.btn-undo { background: #3a4a42; }
+.btn-del { background: #5a1f1f; }
+.btn-qr { background: #7a4fd0; }
+.logout { width: auto; margin: 0; padding: 8px 16px; background: #3a4a42; }
+.staffrow { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid #29372f; word-break: break-word; }
+.hidden { display: none !important; }
+#loginBox { max-width: 400px; margin: 60px auto; }
+#modal { position: fixed; inset: 0; background: rgba(0,0,0,0.8); display: flex; align-items: center; justify-content: center; padding: 20px; z-index: 10; }
+#modalBox { background: #151d19; border: 1px solid #263b32; border-radius: 15px; padding: 18px; max-width: 360px; width: 100%; text-align: center; }
+#modalBox img { width: 100%; border-radius: 10px; background: white; margin-top: 10px; }
+</style>
+</head>
+
+<body>
+
+<header>
+  <div>
+    <h1>SALES INCENTIVE PORTAL</h1>
+    <p>Admin Panel</p>
+  </div>
+  <button id="logoutBtn" class="logout hidden" onclick="logout()">LOGOUT</button>
+</header>
+
+<!-- LOGIN -->
+<div id="loginBox" class="container">
+  <div class="card">
+    <h2>Admin Login</h2>
+    <input id="email" type="email" placeholder="Admin Email" autocomplete="username">
+    <input id="password" type="password" placeholder="Password" autocomplete="current-password">
+    <button id="loginBtn" onclick="login()">LOGIN</button>
+    <p class="msg err" id="loginMsg"></p>
+  </div>
+</div>
+
+<!-- ADMIN PANEL -->
+<div id="panel" class="container hidden">
+
+  <div class="card">
+    <h2>Dashboard</h2>
+    <div class="stats">
+      <div><div class="small">Total Entries</div><div class="stat" id="sTotal">0</div></div>
+      <div><div class="small">Pending</div><div class="stat" id="sPending">0</div></div>
+      <div><div class="small">Approved</div><div class="stat" id="sApproved">0</div></div>
+      <div><div class="small">Paid</div><div class="stat" id="sPaid">0</div></div>
+      <div><div class="small">Total Discount</div><div class="stat" id="sDiscount">₹0</div></div>
+      <div><div class="small">Staff</div><div class="stat" id="sStaff">0</div></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Staff &amp; Payment QR</h2>
+    <div id="staffList"></div>
+  </div>
+
+  <div class="card">
+    <h2>All Entries</h2>
+    <div class="filters">
+      <input id="search" placeholder="Search staff / model / IMEI" oninput="render()">
+      <select id="fApproval" onchange="render()">
+        <option value="">All approvals</option>
+        <option>Pending</option>
+        <option>Approved</option>
+        <option>Rejected</option>
+      </select>
+      <select id="fPayment" onchange="render()">
+        <option value="">All payments</option>
+        <option>Unpaid</option>
+        <option>Paid</option>
+      </select>
+    </div>
+    <button onclick="loadAll()" style="margin-top:12px">REFRESH</button>
+    <div id="entries"></div>
+  </div>
+
+</div>
+
+<!-- QR POPUP -->
+<div id="modal" class="hidden" onclick="closeQR()">
+  <div id="modalBox" onclick="event.stopPropagation()">
+    <strong id="modalName"></strong>
+    <div class="small" id="modalEmail"></div>
+    <img id="modalImg" alt="Payment QR">
+    <p class="small" id="modalMsg"></p>
+    <button onclick="closeQR()">CLOSE</button>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+// ====== SUPABASE CONFIG ======
+var SUPABASE_URL = "https://wgdwpvwnhukxubbqgxnf.supabase.co";
+var SUPABASE_KEY = "sb_publishable_vXtjLftYqBWW7vbSqQd5SQ_CKuRPY3n";
+var db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
+  auth: {
+    persistSession: true,       // login browser mein save rahega
+    autoRefreshToken: true,     // session apne aap renew hota rahega
+    storageKey: "sip-admin-auth"
+  }
+});
+
+var sales = [];
+var profiles = [];
+var profileById = {};
+
+function $(id) { return document.getElementById(id); }
+
+function showPanel(show) {
+  $("loginBox").classList.toggle("hidden", show);
+  $("panel").classList.toggle("hidden", !show);
+  $("logoutBtn").classList.toggle("hidden", !show);
+}
+
+/* ---------- AUTH ---------- */
+
+// Login ke baad check karo ki ye account admin hai ya nahi
+async function enterIfAdmin() {
+  var r = await db.rpc("is_admin");
+
+  if (r.error || r.data !== true) {
+    await db.auth.signOut();
+    showPanel(false);
+    $("loginMsg").textContent = r.error
+      ? "Admin check nahi hua: " + r.error.message
+      : "Ye account admin nahi hai.";
+    return false;
+  }
+
+  showPanel(true);
+  loadAll();
+  return true;
+}
+
+async function login() {
+  var email = $("email").value.trim();
+  var password = $("password").value;
+  var msg = $("loginMsg");
+  var btn = $("loginBtn");
+
+  if (!email || !password) {
+    msg.textContent = "Email aur password daalo.";
+    return;
+  }
+
+  btn.disabled = true;
+  msg.textContent = "";
+
+  var r = await db.auth.signInWithPassword({ email: email, password: password });
+
+  btn.disabled = false;
+
+  if (r.error) {
+    msg.textContent = "Login fail: " + r.error.message;
+    return;
+  }
+
+  $("password").value = "";
+  await enterIfAdmin();
+}
+
+async function logout() {
+  await db.auth.signOut();
+  sales = []; profiles = []; profileById = {};
+  showPanel(false);
+}
+
+/* ---------- DATA ---------- */
+
+async function loadAll() {
+  var pr = await db.from("profiles").select("id,email,full_name,qr_path,created_at").order("full_name");
+  var sr = await db.from("sales").select("*").order("created_at", { ascending: false }).limit(1000);
+
+  if (pr.error) {
+    $("staffList").innerHTML = '<p class="small">Staff load nahi hue: ' + escapeHTML(pr.error.message) + '</p>';
+  } else {
+    profiles = pr.data || [];
+    profileById = {};
+    profiles.forEach(function (p) { profileById[p.id] = p; });
+  }
+
+  if (sr.error) {
+    $("entries").innerHTML = '<p class="small">Entries load nahi hui: ' + escapeHTML(sr.error.message) + '</p>';
+    return;
+  }
+
+  sales = sr.data || [];
+  render();
+}
+
+async function updateEntry(id, fields) {
+  var r = await db.from("sales").update(fields).eq("id", id);
+  if (r.error) {
+    alert("Update nahi hua: " + r.error.message);
+    return;
+  }
+  loadAll();
+}
+
+function setApproval(id, value) { updateEntry(id, { approval: value }); }
+function setPayment(id, value) { updateEntry(id, { payment: value }); }
+
+async function deleteEntry(id) {
+  if (!confirm("Ye entry hamesha ke liye delete karni hai?")) return;
+  var r = await db.from("sales").delete().eq("id", id);
+  if (r.error) {
+    alert("Delete nahi hua: " + r.error.message);
+    return;
+  }
+  loadAll();
+}
+
+/* ---------- QR POPUP ---------- */
+
+async function showQR(userId) {
+  var p = profileById[userId];
+  if (!p) return;
+
+  $("modalName").textContent = p.full_name;
+  $("modalEmail").textContent = p.email || "";
+  $("modalImg").classList.add("hidden");
+  $("modalImg").removeAttribute("src");
+  $("modalMsg").textContent = "Load ho raha hai...";
+  $("modal").classList.remove("hidden");
+
+  if (!p.qr_path) {
+    $("modalMsg").textContent = "Is staff ne abhi QR save nahi kiya.";
+    return;
+  }
+
+  var r = await db.from("profiles").select("qr_data").eq("id", userId).maybeSingle();
+
+  if (r.error || !r.data || !r.data.qr_data) {
+    $("modalMsg").textContent = r.error ? "QR load nahi hua: " + r.error.message : "Is staff ne abhi QR save nahi kiya.";
+    return;
+  }
+
+  $("modalImg").src = r.data.qr_data;
+  $("modalImg").classList.remove("hidden");
+  $("modalMsg").textContent = "";
+}
+
+function closeQR() {
+  $("modal").classList.add("hidden");
+}
+
+/* ---------- RENDER ---------- */
+
+function staffName(item) {
+  var p = item.user_id ? profileById[item.user_id] : null;
+  return p ? p.full_name : item.staff;
+}
+
+function render() {
+  var num = function (v) { var n = Number(v); return Number.isFinite(n) ? n : 0; };
+
+  $("sTotal").textContent = sales.length;
+  $("sPending").textContent = sales.filter(function (x) { return x.approval === "Pending"; }).length;
+  $("sApproved").textContent = sales.filter(function (x) { return x.approval === "Approved"; }).length;
+  $("sPaid").textContent = sales.filter(function (x) { return x.payment === "Paid"; }).length;
+  $("sDiscount").textContent =
+    "₹" + sales.reduce(function (s, x) { return s + num(x.discount); }, 0).toLocaleString("en-IN");
+  $("sStaff").textContent = profiles.length;
+
+  // staff list
+  if (!profiles.length) {
+    $("staffList").innerHTML = '<p class="small">Abhi koi staff register nahi hua.</p>';
+  } else {
+    $("staffList").innerHTML = profiles.map(function (p) {
+      var count = sales.filter(function (x) { return x.user_id === p.id; }).length;
+      return '<div class="staffrow">' +
+        '<div><strong>' + escapeHTML(p.full_name) + '</strong><br>' +
+        '<span class="small">' + escapeHTML(p.email || "") + ' • ' + count + ' entries • ' +
+        (p.qr_path ? 'QR saved' : 'QR nahi') + '</span></div>' +
+        '<button class="btn-qr" onclick="showQR(\'' + p.id + '\')">' + (p.qr_path ? 'Show QR' : 'No QR') + '</button>' +
+      '</div>';
+    }).join("");
+  }
+
+  // entries
+  var q = $("search").value.trim().toLowerCase();
+  var fa = $("fApproval").value;
+  var fp = $("fPayment").value;
+
+  var list = sales.filter(function (x) {
+    var hay = [staffName(x), x.model, x.imei].some(function (v) {
+      return String(v).toLowerCase().indexOf(q) !== -1;
+    });
+    return (!q || hay) && (!fa || x.approval === fa) && (!fp || x.payment === fp);
+  });
+
+  var box = $("entries");
+
+  if (!list.length) {
+    box.innerHTML = '<p class="small">Koi entry nahi mili.</p>';
+    return;
+  }
+
+  box.innerHTML = list.map(function (item) {
+    var hasProfile = item.user_id && profileById[item.user_id];
+    return '<div class="entry">' +
+      '<strong>' + escapeHTML(item.model) + '</strong>' +
+      '<span class="small"> — ' + escapeHTML(staffName(item)) + '</span><br>' +
+      '<span class="small">IMEI: ' + escapeHTML(item.imei) + '</span><br>' +
+      '<span class="small">Discount: ' + escapeHTML(item.discount) + ' • Status: ' + escapeHTML(item.status) + '</span><br>' +
+      '<span class="tag ' + escapeHTML(item.approval) + '">' + escapeHTML(item.approval) + '</span>' +
+      '<span class="small"> • </span>' +
+      '<span class="tag ' + escapeHTML(item.payment) + '">' + escapeHTML(item.payment) + '</span>' +
+      '<span class="small"> • Date: ' + escapeHTML(fmtDate(item.sale_date || item.created_at)) + '</span>' +
+      '<div class="actions">' +
+        (item.approval !== "Approved" ? '<button class="btn-approve" onclick="setApproval(' + item.id + ', \'Approved\')">Approve</button>' : '') +
+        (item.approval !== "Rejected" ? '<button class="btn-reject" onclick="setApproval(' + item.id + ', \'Rejected\')">Reject</button>' : '') +
+        (item.approval !== "Pending" ? '<button class="btn-undo" onclick="setApproval(' + item.id + ', \'Pending\')">Set Pending</button>' : '') +
+        (item.payment === "Unpaid"
+          ? '<button class="btn-paid" onclick="setPayment(' + item.id + ', \'Paid\')">Mark Paid</button>'
+          : '<button class="btn-undo" onclick="setPayment(' + item.id + ', \'Unpaid\')">Mark Unpaid</button>') +
+        (hasProfile ? '<button class="btn-qr" onclick="showQR(\'' + item.user_id + '\')">Show QR</button>' : '') +
+        '<button class="btn-del" onclick="deleteEntry(' + item.id + ')">Delete</button>' +
+      '</div>' +
+    '</div>';
+  }).join("");
+}
+
+// YYYY-MM-DD ko DD/MM/YYYY dikhata hai
+function fmtDate(v) {
+  var s = String(v || "");
+  var m = /^(\d{4})-(\d{2})-(\d{2})/.exec(s);
+  if (m) return m[3] + "/" + m[2] + "/" + m[1];
+  return new Date(v).toLocaleDateString("en-IN");
+}
+
+function escapeHTML(value) {
+  return String(value).replace(/[&<>"']/g, function (ch) {
+    return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[ch];
+  });
+}
+
+/* ---------- INIT ---------- */
+
+$("password").addEventListener("keydown", function (e) {
+  if (e.key === "Enter") login();
+});
+
+db.auth.getSession().then(function (r) {
+  if (r.data && r.data.session) enterIfAdmin();
+});
+</script>
+
+</body>
+</html>
