@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sales Incentive Portal - Staff</title>
+
+<style>
+* { box-sizing: border-box; font-family: Arial, sans-serif; }
+body { margin: 0; background: #0b0f0e; color: white; }
+header { background: #111917; padding: 20px; border-bottom: 1px solid #263b32; display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+header h1 { color: #20d98b; margin: 0; font-size: 23px; }
+header p { color: #a5b4ad; font-size: 13px; margin: 6px 0 0; }
+.container { max-width: 650px; margin: auto; padding: 18px; }
+.card { background: #151d19; border: 1px solid #263b32; border-radius: 15px; padding: 18px; margin-bottom: 15px; }
+.card h2 { margin-top: 0; font-size: 18px; }
+input, select, button {
+  width: 100%; padding: 13px; margin-top: 10px; border-radius: 9px;
+  border: 1px solid #34473d; background: #0d1410; color: white; font-size: 15px;
+}
+input[type=file] { padding: 10px; }
+button { background: #16a765; border: none; font-weight: bold; cursor: pointer; }
+button:hover { background: #118651; }
+button:disabled { opacity: 0.6; cursor: not-allowed; }
+.logout { width: auto; margin: 0; padding: 8px 16px; background: #3a4a42; }
+.stat { color: #20d98b; font-size: 25px; font-weight: bold; }
+.small { color: #9caea4; font-size: 12px; }
+.msg { font-size: 13px; margin: 10px 0 0; min-height: 16px; }
+.err { color: #ff6b6b; }
+.ok { color: #20d98b; }
+.warn { background: #3b3010; border: 1px solid #7a6320; color: #f5c542; padding: 10px 12px; border-radius: 9px; font-size: 13px; margin-top: 10px; }
+.entry { border-bottom: 1px solid #29372f; padding: 12px 0; word-break: break-word; }
+.tag { font-size: 12px; font-weight: bold; }
+.Pending { color: #f5c542; }
+.Approved { color: #20d98b; }
+.Rejected { color: #ff6b6b; }
+.Paid { color: #20d98b; }
+.Unpaid { color: #9caea4; }
+.tabs { display: flex; gap: 8px; }
+.tabs button { margin-top: 0; background: #0d1410; border: 1px solid #34473d; }
+.tabs button.active { background: #16a765; border-color: #16a765; }
+#qrPreview { max-width: 220px; width: 100%; border-radius: 10px; border: 1px solid #34473d; background: white; margin-top: 10px; display: block; }
+.hidden { display: none !important; }
+#authBox { max-width: 420px; }
+footer { text-align: center; padding: 20px; color: #66756d; font-size: 12px; }
+</style>
+</head>
+
+<body>
+
+<header>
+  <div>
+    <h1>SALES INCENTIVE PORTAL</h1>
+    <p id="hdrSub">Staff • Sales Entry</p>
+  </div>
+  <button id="logoutBtn" class="logout hidden" onclick="logout()">LOGOUT</button>
+</header>
+
+<!-- LOGIN / REGISTER -->
+<div id="authBox" class="container">
+  <div class="card">
+    <div class="tabs">
+      <button id="tabLogin" class="active" onclick="switchTab('login')">LOGIN</button>
+      <button id="tabRegister" onclick="switchTab('register')">REGISTER</button>
+    </div>
+
+    <div id="nameWrap" class="hidden">
+      <input id="fullName" placeholder="Aapka Pura Naam" autocomplete="name">
+    </div>
+    <input id="email" type="email" placeholder="Email" autocomplete="username">
+    <input id="password" type="password" placeholder="Password (kam se kam 6 akshar)" autocomplete="current-password">
+    <div id="confirmWrap" class="hidden">
+      <input id="password2" type="password" placeholder="Password dobara" autocomplete="new-password">
+    </div>
+
+    <button id="authBtn" onclick="submitAuth()">LOGIN</button>
+    <p id="authMsg" class="msg"></p>
+  </div>
+</div>
+
+<!-- STAFF APP -->
+<div id="app" class="container hidden">
+
+  <div class="card">
+    <h2>My Dashboard</h2>
+    <p class="small" id="welcome"></p>
+    <p>My Entries</p>
+    <div class="stat" id="totalEntries">0</div>
+    <p>My Total Discount</p>
+    <div class="stat" id="totalDiscount">₹0</div>
+  </div>
+
+  <div class="card">
+    <h2>Payment QR</h2>
+    <p class="small">Apna payment QR (UPI QR ka screenshot) yahan save karo. Admin payment isi QR par karega.</p>
+    <div id="qrWarn" class="warn hidden">Abhi tak QR save nahi hua. Payment ke liye QR zaroor upload karo.</div>
+    <img id="qrPreview" class="hidden" alt="Payment QR">
+    <input id="qrFile" type="file" accept="image/png,image/jpeg,image/webp">
+    <button id="qrBtn" onclick="uploadQR()">SAVE QR</button>
+    <p id="qrMsg" class="msg"></p>
+  </div>
+
+  <div class="card">
+    <h2>New Sales Entry</h2>
+    <p class="small">Entry aapke naam se apne aap save hogi.</p>
+
+    <input id="model" placeholder="Phone Model">
+    <input id="imei" placeholder="IMEI Number" maxlength="15" inputmode="numeric">
+    <input id="discount" placeholder="Discount amount (₹) or No" inputmode="decimal">
+    <p class="small" style="margin:12px 0 0">Date</p>
+    <input id="saleDate" type="date" style="margin-top:4px">
+
+    <select id="status">
+      <option value="Active">Active</option>
+      <option value="Inactive">Inactive</option>
+    </select>
+
+    <button id="submitBtn" onclick="addEntry()">SUBMIT ENTRY</button>
+  </div>
+
+  <div class="card">
+    <h2>My Entries</h2>
+    <button onclick="loadEntries()" style="margin:0 0 6px">REFRESH</button>
+    <div id="entries"></div>
+  </div>
+
+</div>
+
+<footer>Sales Incentive Portal</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+// ====== SUPABASE CONFIG ======
+var SUPABASE_URL = "https://wgdwpvwnhukxubbqgxnf.supabase.co";
+var SUPABASE_KEY = "sb_publishable_vXtjLftYqBWW7vbSqQd5SQ_CKuRPY3n";
+var db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
+  auth: {
+    persistSession: true,       // login browser mein save rahega
+    autoRefreshToken: true,     // session apne aap renew hota rahega
+    storageKey: "sip-staff-auth"
+  }
+});
+
+var sales = [];
+var me = null;        // logged in user
+var profile = null;   // profiles row
+var mode = "login";
+
+function $(id) { return document.getElementById(id); }
+
+function setMsg(id, text, cls) {
+  var el = $(id);
+  el.textContent = text || "";
+  el.className = "msg " + (cls || "");
+}
+
+/* ---------- AUTH ---------- */
+
+function switchTab(m) {
+  mode = m;
+  $("tabLogin").classList.toggle("active", m === "login");
+  $("tabRegister").classList.toggle("active", m === "register");
+  $("nameWrap").classList.toggle("hidden", m !== "register");
+  $("confirmWrap").classList.toggle("hidden", m !== "register");
+  $("authBtn").textContent = m === "login" ? "LOGIN" : "REGISTER";
+  $("password").autocomplete = m === "login" ? "current-password" : "new-password";
+  setMsg("authMsg", "");
+}
+
+async function submitAuth() {
+  var email = $("email").value.trim();
+  var password = $("password").value;
+  var btn = $("authBtn");
+
+  if (!email || !password) {
+    setMsg("authMsg", "Email aur password daalo.", "err");
+    return;
+  }
+
+  if (mode === "register") {
+    var name = $("fullName").value.trim();
+    if (!name) { setMsg("authMsg", "Apna naam daalo.", "err"); return; }
+    if (password.length < 6) { setMsg("authMsg", "Password kam se kam 6 akshar ka rakho.", "err"); return; }
+    if (password !== $("password2").value) { setMsg("authMsg", "Dono password same nahi hain.", "err"); return; }
+
+    btn.disabled = true;
+    setMsg("authMsg", "Register ho raha hai...");
+
+    var r = await db.auth.signUp({
+      email: email,
+      password: password,
+      options: { data: { full_name: name } }
+    });
+
+    btn.disabled = false;
+
+    if (r.error) { setMsg("authMsg", "Register nahi hua: " + r.error.message, "err"); return; }
+
+    if (!r.data.session) {
+      // Email confirmation on hai
+      setMsg("authMsg", "Register ho gaya. Apne email par aaya link khol kar confirm karo, phir LOGIN karo.", "ok");
+      switchTab("login");
+      setMsg("authMsg", "Register ho gaya. Apne email par aaya link khol kar confirm karo, phir LOGIN karo.", "ok");
+      return;
+    }
+
+    await startApp(r.data.session.user);
+    return;
+  }
+
+  btn.disabled = true;
+  setMsg("authMsg", "Login ho raha hai...");
+
+  var res = await db.auth.signInWithPassword({ email: email, password: password });
+
+  btn.disabled = false;
+
+  if (res.error) { setMsg("authMsg", "Login fail: " + res.error.message, "err"); return; }
+
+  $("password").value = "";
+  await startApp(res.data.user);
+}
+
+async function logout() {
+  await db.auth.signOut();
+  me = null; profile = null; sales = [];
+  $("app").classList.add("hidden");
+  $("authBox").classList.remove("hidden");
+  $("logoutBtn").classList.add("hidden");
+  $("hdrSub").textContent = "Staff • Sales Entry";
+  setMsg("authMsg", "");
+}
+
+/* ---------- APP START ---------- */
+
+async function startApp(user) {
+  me = user;
+
+  var p = await db.from("profiles").select("*").eq("id", me.id).maybeSingle();
+
+  if (p.error) {
+    setMsg("authMsg", "Profile load nahi hua: " + p.error.message, "err");
+    return;
+  }
+
+  profile = p.data;
+
+  // Agar kisi wajah se profile nahi bana to ab bana do
+  if (!profile) {
+    var meta = (me.user_metadata && me.user_metadata.full_name) || (me.email || "").split("@")[0];
+    var ins = await db.from("profiles").insert({ id: me.id, email: me.email, full_name: meta }).select().single();
+    if (ins.error) {
+      setMsg("authMsg", "Profile nahi ban paya: " + ins.error.message, "err");
+      return;
+    }
+    profile = ins.data;
+  }
+
+  $("authBox").classList.add("hidden");
+  $("app").classList.remove("hidden");
+  $("logoutBtn").classList.remove("hidden");
+  $("hdrSub").textContent = profile.full_name;
+  $("welcome").textContent = "Welcome, " + profile.full_name + " (" + (me.email || "") + ")";
+
+  await showQR();
+  await loadEntries();
+}
+
+/* ---------- PAYMENT QR ---------- */
+
+async function showQR() {
+  var img = $("qrPreview");
+
+  if (!profile || !profile.qr_data) {
+    img.classList.add("hidden");
+    img.removeAttribute("src");
+    $("qrWarn").classList.remove("hidden");
+    return;
+  }
+
+  img.src = profile.qr_data;
+  img.classList.remove("hidden");
+  $("qrWarn").classList.add("hidden");
+}
+
+// Image ko chhota karke base64 (data URL) bana deta hai
+function prepareImage(file) {
+  return new Promise(function (resolve, reject) {
+    var reader = new FileReader();
+    reader.onerror = function () { reject(new Error("File padh nahi paye.")); };
+    reader.onload = function () {
+      var im = new Image();
+      im.onerror = function () { reject(new Error("Ye image khul nahi rahi.")); };
+      im.onload = function () {
+        var max = 700;
+        var scale = Math.min(1, max / Math.max(im.width, im.height));
+        var w = Math.round(im.width * scale);
+        var h = Math.round(im.height * scale);
+        var c = document.createElement("canvas");
+        c.width = w;
+        c.height = h;
+        var ctx = c.getContext("2d");
+        ctx.fillStyle = "#ffffff";
+        ctx.fillRect(0, 0, w, h);
+        ctx.drawImage(im, 0, 0, w, h);
+
+        var out = c.toDataURL("image/png");
+        if (out.length > 380000) out = c.toDataURL("image/jpeg", 0.8);
+        if (out.length > 380000) out = c.toDataURL("image/jpeg", 0.6);
+        if (out.length > 380000) { reject(new Error("Image bahut badi hai, koi chhota screenshot lo.")); return; }
+        resolve(out);
+      };
+      im.src = reader.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+async function uploadQR() {
+  var file = $("qrFile").files[0];
+
+  if (!file) { setMsg("qrMsg", "Pehle QR ki image chuno.", "err"); return; }
+
+  if (["image/png", "image/jpeg", "image/webp"].indexOf(file.type) === -1) {
+    setMsg("qrMsg", "Sirf PNG, JPG ya WEBP image chalegi.", "err");
+    return;
+  }
+
+  if (file.size > 8 * 1024 * 1024) {
+    setMsg("qrMsg", "Image 8 MB se chhoti honi chahiye.", "err");
+    return;
+  }
+
+  var btn = $("qrBtn");
+  btn.disabled = true;
+  setMsg("qrMsg", "Save ho raha hai...");
+
+  var data;
+  try {
+    data = await prepareImage(file);
+  } catch (e) {
+    btn.disabled = false;
+    setMsg("qrMsg", e.message, "err");
+    return;
+  }
+
+  // qr_path sirf ek flag hai ki QR saved hai (admin list ko halki rakhne ke liye)
+  var upd = await db.from("profiles").update({ qr_data: data, qr_path: "base64" }).eq("id", me.id).select().single();
+
+  btn.disabled = false;
+
+  if (upd.error) {
+    setMsg("qrMsg", "QR database mein save nahi hua: " + upd.error.message, "err");
+    return;
+  }
+
+  profile = upd.data;
+  $("qrFile").value = "";
+  setMsg("qrMsg", "QR save ho gaya.", "ok");
+  await showQR();
+}
+
+/* ---------- ENTRIES ---------- */
+
+async function loadEntries() {
+  var r = await db
+    .from("sales")
+    .select("*")
+    .eq("user_id", me.id)
+    .order("created_at", { ascending: false })
+    .limit(500);
+
+  if (r.error) {
+    $("entries").innerHTML = '<p class="small">Entries load nahi hui: ' + escapeHTML(r.error.message) + '</p>';
+    return;
+  }
+
+  sales = r.data || [];
+  render();
+}
+
+async function addEntry() {
+  var model = $("model").value.trim();
+  var imei = $("imei").value.trim();
+  var discount = $("discount").value.trim();
+  var status = $("status").value;
+  var saleDate = $("saleDate").value;
+
+  if (!saleDate) {
+    alert("Date chuno.");
+    return;
+  }
+
+  if (saleDate > todayStr()) {
+    alert("Aage ki date nahi chalegi.");
+    return;
+  }
+
+  if (!model || !imei || !discount) {
+    alert("Please fill all fields.");
+    return;
+  }
+
+  if (!/^\d{15}$/.test(imei)) {
+    alert("IMEI must be 15 digits.");
+    return;
+  }
+
+  var btn = $("submitBtn");
+  btn.disabled = true;
+  btn.textContent = "SAVING...";
+
+  var r = await db.from("sales").insert({
+    user_id: me.id,
+    staff: profile.full_name,
+    model: model,
+    imei: imei,
+    discount: discount,
+    status: status,
+    sale_date: saleDate,
+    approval: "Pending",
+    payment: "Unpaid"
+  });
+
+  btn.disabled = false;
+  btn.textContent = "SUBMIT ENTRY";
+
+  if (r.error) {
+    if (r.error.code === "23505") {
+      alert("This IMEI is already entered.");
+    } else {
+      alert("Save nahi hua: " + r.error.message);
+    }
+    return;
+  }
+
+  $("model").value = "";
+  $("imei").value = "";
+  $("discount").value = "";
+  $("saleDate").value = todayStr();
+
+  alert("Entry saved!");
+  loadEntries();
+}
+
+function render() {
+  $("totalEntries").textContent = sales.length;
+
+  var total = sales.reduce(function (sum, item) {
+    var n = Number(item.discount);
+    return sum + (Number.isFinite(n) ? n : 0);
+  }, 0);
+
+  $("totalDiscount").textContent = "₹" + total.toLocaleString("en-IN");
+
+  var box = $("entries");
+
+  if (!sales.length) {
+    box.innerHTML = '<p class="small">No entries yet.</p>';
+    return;
+  }
+
+  box.innerHTML = sales.map(function (item) {
+    return '<div class="entry">' +
+      '<strong>' + escapeHTML(item.model) + '</strong><br>' +
+      '<span class="small">IMEI: ' + escapeHTML(item.imei) + '</span><br>' +
+      '<span class="small">Discount: ' + escapeHTML(item.discount) + '</span><br>' +
+      '<span class="small">Status: ' + escapeHTML(item.status) + '</span><br>' +
+      '<span class="tag ' + escapeHTML(item.approval) + '">' + escapeHTML(item.approval) + '</span>' +
+      '<span class="small"> • </span>' +
+      '<span class="tag ' + escapeHTML(item.payment) + '">' + escapeHTML(item.payment) + '</span><br>' +
+      '<span class="small">Date: ' + escapeHTML(fmtDate(item.sale_date || item.created_at)) + '</span>' +
+    '</div>';
+  }).join("");
+}
+
+// Aaj ki date (aapke local time ke hisaab se) YYYY-MM-DD mein
+function todayStr() {
+  var d = new Date();
+  var m = String(d.getMonth() + 1).padStart(2, "0");
+  var day = String(d.getDate()).padStart(2, "0");
+  return d.getFullYear() + "-" + m + "-" + day;
+}
+
+// YYYY-MM-DD ko DD/MM/YYYY dikhata hai
+function fmtDate(v) {
+  var s = String(v || "");
+  var m = /^(\d{4})-(\d{2})-(\d{2})/.exec(s);
+  if (m) return m[3] + "/" + m[2] + "/" + m[1];
+  return new Date(v).toLocaleDateString("en-IN");
+}
+
+function escapeHTML(value) {
+  return String(value).replace(/[&<>"']/g, function (ch) {
+    return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[ch];
+  });
+}
+
+/* ---------- INIT ---------- */
+
+$("saleDate").value = todayStr();
+$("saleDate").max = todayStr();
+
+$("password").addEventListener("keydown", function (e) {
+  if (e.key === "Enter" && mode === "login") submitAuth();
+});
+
+db.auth.getSession().then(function (r) {
+  if (r.data && r.data.session) startApp(r.data.session.user);
+});
+</script>
+
+</body>
+</html>
